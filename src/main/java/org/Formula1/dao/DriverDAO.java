@@ -56,8 +56,22 @@ public class DriverDAO {
             }
 
     public Driver findById(int id){
+        List<Driver> drivers = new ArrayList<>();
+        String query = "SELECT * FROM driver";
+        try (Connection c = DataBaseManager.connect();
+        PreparedStatement ps = c.prepareStatement(query);
+        ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Driver d = new Driver(rs.getInt("Id"));
+                d.setPoints(rs.getInt("points"));
+                drivers.add(d);
+            }
+            }catch (SQLException e){
+            e.printStackTrace();
+        }return drivers;
+        }
 
-    }
+
     public void update(Driver driver){
 
     }
