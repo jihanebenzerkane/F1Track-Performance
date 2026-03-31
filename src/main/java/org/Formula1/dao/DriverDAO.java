@@ -13,23 +13,6 @@ import java.util.List;
 
 
 public class DriverDAO {
-   /*public void insert(Driver driver){
-
-        try  (Connection c = DataBaseManager.connect();
-            PreparedStatement ps =c.prepareStatement(
-                    "INSERT INTO driver (name, team, nationality, carNumber) VALUES(?,?,?,?)",
-                    PreparedStatement.RETURN_GENERATED_KEYS)){
-            ps.setString(1, driver.getName());
-            ps.setString(2, driver.getTeam());
-            ps.setString(3, driver.getNationality());
-            ps.setInt(4, driver.getCarNumber());
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-    }*/
     public List<Driver> findAll() {
         List<Driver> drivers = new ArrayList<>();
         String query = "SELECT * FROM driver";
