@@ -1,7 +1,4 @@
 package org.Formula1.service;
-
-
-
 public class StandingService {
     public int posToPoints (int position){
         int n;
