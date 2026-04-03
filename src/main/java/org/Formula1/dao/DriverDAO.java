@@ -34,41 +34,40 @@ public class DriverDAO {
         return drivers;
     }
     public List<Driver> findByTeam(String team) {
-        // Fix: Use a JOIN to find any driver who has ever raced for this team
-        String query = "SELECT DISTINCT d.id FROM driver d " +
-                       "JOIN race_data rd ON d.id = rd.driver_id " +
-                       "JOIN constructor c ON rd.constructor_id = c.id " +
-                       "WHERE c.name LIKE ? OR c.id LIKE ?";
-        List<Driver> results = new ArrayList<>();
-        try (Connection c = DataBaseManager.connect();
-             PreparedStatement ps = c.prepareStatement(query)) {
-            ps.setString(1, "%" + team + "%");
-            ps.setString(2, "%" + team + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Driver d = findById(rs.getString("id"));
-                    if (d != null) results.add(d);
-                }
-            }
-        } catch (SQLException e) { e.printStackTrace(); }
-        return results;
-    }
+    String query = BASE_QUERY + " WHERE d.id IN (" +
+                   "SELECT rd.driver_id FROM race_data rd " +
+                   "JOIN constructor c ON rd.constructor_id = c.id " +
+                   "WHERE c.name LIKE ? COLLATE NOCASE OR c.id LIKE ? COLLATE NOCASE)" + ORDER_LIMIT;
+    List<Driver> results = new ArrayList<>();
+    try (Connection c = DataBaseManager.connect();
+         PreparedStatement ps = c.prepareStatement(query)) {
+        ps.setString(1, "%" + team + "%");
+        ps.setString(2, "%" + team + "%");
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) results.add(map(rs));
+        }
+    } catch (SQLException e) { e.printStackTrace(); }
+    return results;
+}
+
     public List<Driver> findBySeason(int year) {
-        // Fix: Simplified join for season
-        String query = "SELECT driver_id FROM season_driver WHERE year = ? ORDER BY points_overall DESC";
-        List<Driver> drivers = new ArrayList<>();
-        try (Connection c = DataBaseManager.connect();
-             PreparedStatement ps = c.prepareStatement(query)) {
-            ps.setInt(1, year);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Driver d = findById(rs.getString("driver_id"));
-                    if (d != null) drivers.add(d);
-                }
-            }
-        } catch (SQLException e) { e.printStackTrace(); }
-        return drivers;
-    }
+    String query = BASE_QUERY +
+        " WHERE d.id IN (" +
+        "   SELECT DISTINCT rd.driver_id FROM race_data rd " +
+        "   JOIN race r ON rd.race_id = r.id " +
+        "   WHERE r.year = ?" +
+        ") ORDER BY d.last_name ASC";
+    List<Driver> drivers = new ArrayList<>();
+    try (Connection c = DataBaseManager.connect();
+         PreparedStatement ps = c.prepareStatement(query)) {
+        ps.setInt(1, year);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) drivers.add(map(rs));
+        }
+    } catch (SQLException e) { e.printStackTrace(); }
+    return drivers;
+}
+
     public List<Driver> findByName(String name) {
         return findByFilter("d.last_name LIKE ? OR d.first_name LIKE ?", "%" + name + "%");
     }
