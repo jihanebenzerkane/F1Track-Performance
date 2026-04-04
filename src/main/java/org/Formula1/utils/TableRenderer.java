@@ -1,6 +1,5 @@
 package org.Formula1.utils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TableRenderer {
@@ -22,7 +21,7 @@ public class TableRenderer {
                 }
             }
         }
-
+        
         // Draw top border
         printLine(colWidths, '╔', '╦', '╗');
         

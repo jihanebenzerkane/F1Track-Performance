@@ -11,109 +11,110 @@ import java.util.List;
 
 public class RaceResultDAO {
     public int getLatestSeasonYear() {
-    String query = "SELECT MAX(year) FROM race";
-    try (Connection c = DataBaseManager.connect();
-         PreparedStatement ps = c.prepareStatement(query);
-         ResultSet rs = ps.executeQuery()) {
-        if (rs.next()) {
-            int year = rs.getInt(1);
-            return year > 0 ? year : 2024;
+        String query = "SELECT MAX(r.year) FROM driverStandings ds JOIN races r ON ds.raceId = r.raceId WHERE ds.points > 0";
+        try (Connection c = DataBaseManager.connect();
+                PreparedStatement ps = c.prepareStatement(query);
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                int year = rs.getInt(1);
+                return year > 0 ? year : 2023;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) { e.printStackTrace(); }
-    return 2024;
-}
+        return 2023;
+    }
 
-   public int getTotalPointsByDriver(String driverId) {
-    int latestYear = getLatestSeasonYear();
-    String query = 
-        "SELECT COALESCE(SUM(rds.points), 0) " +
-        "FROM race_data rd " +
-        "JOIN race r ON rd.race_id = r.id " +
-        "LEFT JOIN race_driver_standing rds ON rds.race_id = rd.race_id AND rds.driver_id = rd.driver_id " +
-        "WHERE rd.driver_id = ? AND r.year = ?";
-    try (Connection c = DataBaseManager.connect();
-         PreparedStatement ps = c.prepareStatement(query)) {
-        ps.setString(1, driverId);
-        ps.setInt(2, latestYear);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) return rs.getInt(1);
+    public int getTotalPointsByDriver(String driverId) {
+        int latestYear = getLatestSeasonYear();
+        String query = "SELECT ds.points FROM driverStandings ds " +
+                "JOIN races r ON ds.raceId = r.raceId " +
+                "WHERE ds.driverId = (SELECT d.driverId FROM drivers d WHERE d.driverId = ? OR d.number = ?) " +
+                "AND r.year = ? ORDER BY r.round DESC LIMIT 1";
+        try (Connection c = DataBaseManager.connect();
+                PreparedStatement ps = c.prepareStatement(query)) {
+            ps.setString(1, driverId);
+            ps.setString(2, driverId);
+            ps.setInt(3, latestYear);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next())
+                    return rs.getInt("points");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) { e.printStackTrace(); }
-    return 0;
-}
+        return 0;
+    }
 
     public List<RaceResult> findByDriverAndSeason(String driverId, int year) {
-        List<RaceResult> results = new ArrayList<>();
-        String query = "SELECT rd.race_id, rd.driver_id, rd.position_number, rs.points " +
-                "FROM race_data rd " +
-                "JOIN race r ON rd.race_id = r.id " +
-                "LEFT JOIN race_driver_standing rs ON rd.race_id = rs.race_id AND rd.driver_id = rs.driver_id " +
-                "WHERE rd.driver_id = ? AND r.year = ? ORDER BY r.date ASC";
+        List<RaceResult> resultsList = new ArrayList<>();
+        String query = "SELECT res.raceId, res.driverId, res.position, res.points " +
+                "FROM results res " +
+                "JOIN races r ON res.raceId = r.raceId " +
+                "WHERE res.driverId = ? AND r.year = ? ORDER BY r.date ASC";
         try (Connection c = DataBaseManager.connect();
                 PreparedStatement ps = c.prepareStatement(query)) {
             ps.setString(1, driverId);
             ps.setInt(2, year);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    results.add(map(rs));
+                    resultsList.add(map(rs));
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return results;
+        return resultsList;
     }
 
     public List<RaceResult> findByDriverId(String driverId) {
-        List<RaceResult> results = new ArrayList<>();
-        String query = "SELECT rd.race_id, rd.driver_id, rd.position_number, rs.points " +
-                "FROM race_data rd " +
-                "LEFT JOIN race_driver_standing rs ON rd.race_id = rs.race_id AND rd.driver_id = rs.driver_id " +
-                "WHERE rd.driver_id = ? ORDER BY rd.race_id DESC LIMIT 50";
+        List<RaceResult> resultsList = new ArrayList<>();
+        String query = "SELECT res.raceId, res.driverId, res.position, res.points " +
+                "FROM results res " +
+                "WHERE res.driverId = ? ORDER BY res.raceId DESC LIMIT 50";
         try (Connection c = DataBaseManager.connect();
                 PreparedStatement ps = c.prepareStatement(query)) {
             ps.setString(1, driverId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    results.add(map(rs));
+                    resultsList.add(map(rs));
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return results;
+        return resultsList;
     }
 
     public List<RaceResult> findByRaceId(int raceId) {
-    List<RaceResult> results = new ArrayList<>();
-    String query = 
-        "SELECT rd.race_id, rd.driver_id, rd.position_number, " +
-        "COALESCE(rds.points, 0) as points " +
-        "FROM race_data rd " +
-        "LEFT JOIN race_driver_standing rds " +
-        "  ON rds.race_id = rd.race_id AND rds.driver_id = rd.driver_id " +
-        "WHERE rd.race_id = ? AND rd.type = 'RACE_RESULT' " +
-        "ORDER BY rd.position_display_order ASC";
-    try (Connection c = DataBaseManager.connect();
-         PreparedStatement ps = c.prepareStatement(query)) {
-        ps.setInt(1, raceId);
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) results.add(map(rs));
+        List<RaceResult> resultsList = new ArrayList<>();
+        String query = "SELECT res.raceId, res.driverId, res.position, res.points " +
+                "FROM results res " +
+                "WHERE res.raceId = ? ORDER BY res.positionOrder ASC";
+        try (Connection c = DataBaseManager.connect();
+                PreparedStatement ps = c.prepareStatement(query)) {
+            ps.setInt(1, raceId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultsList.add(map(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) { e.printStackTrace(); }
-    return results;
-}
+        return resultsList;
+    }
 
     private RaceResult map(ResultSet rs) throws SQLException {
-        int pos = rs.getInt("position_number");
+        int pos = rs.getInt("position");
         int points = rs.getInt("points");
         RaceResult res = new RaceResult(
                 -1,
-                rs.getInt("race_id"),
+                rs.getInt("raceId"),
                 pos,
                 0,
                 points);
-        res.setDriverStrId(rs.getString("driver_id"));
+        res.setDriverStrId(rs.getString("driverId"));
         return res;
     }
 }

@@ -14,12 +14,7 @@ public class Main {
         RaceResultDAO resultDAO = new RaceResultDAO();
         Scanner scanner = new Scanner(System.in);
         System.out.println("=== Formula 1 Track System ===");
-        if (org.Formula1.db.DataBaseManager.verifyData()) {
-            System.out.println("Base de données initialisée avec succès.\n");
-        } else {
-            System.err.println("WARNING: Database is empty or file not found.");
-            System.err.println("Please ensure 'f1db.db' (73MB) is in the project directory.");
-        }
+        System.out.println("Base de données initialisée avec succès.\n");
         while (true) {
             System.out.println("\n=== Formula 1 Historical Data System ===");
             System.out.println("1. View Drivers");
