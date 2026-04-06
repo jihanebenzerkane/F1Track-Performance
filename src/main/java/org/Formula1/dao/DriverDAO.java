@@ -1,9 +1,12 @@
 package org.Formula1.dao;
 import org.Formula1.db.DataBaseManager;
 import org.Formula1.models.Driver;
+import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+@Repository
 public class DriverDAO {
     private final String BASE_QUERY =
             "SELECT DISTINCT d.rowid AS db_id, d.id AS str_id, d.first_name, d.last_name, d.nationality_country_id AS nationality, d.permanent_number, " +

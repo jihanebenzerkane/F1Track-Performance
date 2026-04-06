@@ -17,7 +17,8 @@ public class StatisticsService {
     public void showGeneralStatistics() {
         int targetYear = resultDAO.getLatestSeasonYear();
         List<Driver> drivers = driverDAO.findBySeason(targetYear);
-        drivers.forEach(d -> d.setPoints(resultDAO.getTotalPointsByDriver(d.getId())));
+        int year = resultDAO.getLatestSeasonYear();
+        drivers.forEach(d -> d.setPoints(resultDAO.getTotalPointsByDriver(d.getId(), year)));
         
         int totalDrivers = drivers.size();
         int totalPoints = drivers.stream().mapToInt(Driver::getPoints).sum();
@@ -43,7 +44,8 @@ public class StatisticsService {
     public void showTeamStatistics() {
         int targetYear = resultDAO.getLatestSeasonYear();
         List<Driver> drivers = driverDAO.findBySeason(targetYear);
-        drivers.forEach(d -> d.setPoints(resultDAO.getTotalPointsByDriver(d.getId())));
+        int year = resultDAO.getLatestSeasonYear();
+        drivers.forEach(d -> d.setPoints(resultDAO.getTotalPointsByDriver(d.getId(), year)));
         
         String[] headers = {"TEAM", "STANDOUT DRIVER", "TOTAL POINTS"};
         List<String[]> rows = new ArrayList<>();

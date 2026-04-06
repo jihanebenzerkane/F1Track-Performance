@@ -8,44 +8,40 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class RaceResultDAO {
     public int getLatestSeasonYear() {
-        String query = "SELECT MAX(r.year) FROM driverStandings ds JOIN races r ON ds.raceId = r.raceId WHERE ds.points > 0";
+        String query = "SELECT MAX(year) FROM race";
         try (Connection c = DataBaseManager.connect();
-                PreparedStatement ps = c.prepareStatement(query);
-                ResultSet rs = ps.executeQuery()) {
+             PreparedStatement ps = c.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 int year = rs.getInt(1);
-                return year > 0 ? year : 2023;
+                return year > 0 ? year : 2024;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 2023;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 2024;
     }
 
-    public int getTotalPointsByDriver(String driverId) {
-        int latestYear = getLatestSeasonYear();
-        String query = "SELECT ds.points FROM driverStandings ds " +
-                "JOIN races r ON ds.raceId = r.raceId " +
-                "WHERE ds.driverId = (SELECT d.driverId FROM drivers d WHERE d.driverId = ? OR d.number = ?) " +
-                "AND r.year = ? ORDER BY r.round DESC LIMIT 1";
+    public int getTotalPointsByDriver(String driverId, int year) {
+        String query =
+                "SELECT rds.points " +
+                        "FROM race_driver_standing rds " +
+                        "JOIN race r ON rds.race_id = r.id " +
+                        "WHERE rds.driver_id = ? AND r.year = ? " +
+                        "ORDER BY r.date DESC LIMIT 1";
         try (Connection c = DataBaseManager.connect();
-                PreparedStatement ps = c.prepareStatement(query)) {
+             PreparedStatement ps = c.prepareStatement(query)) {
             ps.setString(1, driverId);
-            ps.setString(2, driverId);
-            ps.setInt(3, latestYear);
+            ps.setInt(2, year);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next())
-                    return rs.getInt("points");
+                if (rs.next()) return rs.getInt("points");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
         return 0;
     }
-
     public List<RaceResult> findByDriverAndSeason(String driverId, int year) {
         List<RaceResult> resultsList = new ArrayList<>();
         String query = "SELECT res.raceId, res.driverId, res.position, res.points " +

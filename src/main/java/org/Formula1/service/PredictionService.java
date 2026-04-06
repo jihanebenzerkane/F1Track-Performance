@@ -23,7 +23,8 @@ public class PredictionService {
             System.out.println("No active drivers found for prediction.");
             return;
         }
-        drivers.forEach(d -> d.setPoints(resultDAO.getTotalPointsByDriver(d.getId())));
+        int year = resultDAO.getLatestSeasonYear();
+        drivers.forEach(d -> d.setPoints(resultDAO.getTotalPointsByDriver(d.getId(), year)));
         drivers.sort((d1, d2) -> d2.getPoints() - d1.getPoints());
         
         System.out.println("\n--- AI Analysis: Race Win Probabilities ---");
@@ -43,7 +44,8 @@ public class PredictionService {
     public void predictChampion() {
         int targetYear = resultDAO.getLatestSeasonYear();
         List<Driver> drivers = driverDAO.findBySeason(targetYear);
-        drivers.forEach(d -> d.setPoints(resultDAO.getTotalPointsByDriver(d.getId())));
+        int year = resultDAO.getLatestSeasonYear();
+        drivers.forEach(d -> d.setPoints(resultDAO.getTotalPointsByDriver(d.getId(), year)));
         
         drivers.sort((d1, d2) -> d2.getPoints() - d1.getPoints());
         if (drivers.isEmpty()) {

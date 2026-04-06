@@ -8,7 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class RaceDAO {
     private final String BASE_QUERY = "SELECT r.id, r.date AS raceDate, gp.name AS grandPrix, r.year AS season, c.country_id AS country, c.name AS circuit "
             +
