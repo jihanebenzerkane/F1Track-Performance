@@ -5,6 +5,7 @@ import PredictionsPage from './pages/PredictionsPage.jsx'
 import H2HPage from './pages/H2HPage'
 import CircuitPage from './pages/CircuitPage'
 import PitStrategyPage from './pages/PitStrategyPage'
+import DriverPage from './pages/DriverPage'
 
 const navStyle = {
   display: 'flex', alignItems: 'center', gap: '4px'
@@ -76,6 +77,7 @@ export default function App() {
 
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '32px' }}>
         <Routes>
+          <Route path="/drivers/:id" element={<DriverPage />} />
           <Route path="/" element={<StandingsPage />} />
           <Route path="/form" element={<FormPage />} />
           <Route path="/predictions" element={<PredictionsPage />} />
