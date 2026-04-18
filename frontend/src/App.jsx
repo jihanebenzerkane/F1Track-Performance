@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, NavLink, useLocation, Navigate, Link } from 'react-router-dom'
+import HomePage from './pages/HomePage'
 import StandingsPage from './pages/StandingsPage'
 import FormPage from './pages/FormPage'
 import PredictionsPage from './pages/PredictionsPage.jsx'
@@ -6,86 +7,151 @@ import H2HPage from './pages/H2HPage'
 import CircuitPage from './pages/CircuitPage'
 import PitStrategyPage from './pages/PitStrategyPage'
 import DriverPage from './pages/DriverPage'
-
-const navStyle = {
-  display: 'flex', alignItems: 'center', gap: '4px'
-}
+import CarsPage from './pages/CarsPage';
+import TelemetryPage from './pages/TelemetryPage';
+import Regulation2026Page from './pages/Regulation2026Page';
+import RaceResultsPage from './pages/RaceResultsPage';
 
 const linkStyle = ({ isActive }) => ({
   background: 'none',
   border: 'none',
-  color: isActive ? '#e8002d' : '#6b6b90',
-  fontFamily: "'Titillium Web', sans-serif",
-  fontSize: '13px',
+  color: isActive ? '#FFFFFF' : '#a3a3a3',
+  fontFamily: "'Formula1', sans-serif",
+  fontSize: '11px',
   fontWeight: '700',
-  padding: '6px 14px',
+  padding: '6px 12px',
   borderRadius: '6px',
   cursor: 'pointer',
   textDecoration: 'none',
-  backgroundColor: isActive ? 'rgba(232,0,45,0.1)' : 'transparent',
-  letterSpacing: '.02em',
+  backgroundColor: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
+  letterSpacing: '.1em',
   transition: 'all .15s',
+  textTransform: 'uppercase',
+  whiteSpace: 'nowrap',
+  flexShrink: 0,
 })
+
+function Layout({ children }) {
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
+  return (
+    <>
+      <header style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        background: 'rgba(5,5,5,0.92)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
+        padding: '0 24px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        height: '64px',
+        padding: '0 24px',
+        gap: '20px',
+        minWidth: 0,
+      }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, textDecoration: 'none' }}>
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg"
+            alt="F1 Logo"
+            style={{ width: '44px', height: 'auto', display: 'block' }}
+          />
+          <span style={{
+            fontSize: '16px', fontWeight: '900',
+            letterSpacing: '2px', fontFamily: "'Formula1', sans-serif",
+            textTransform: 'uppercase', color: '#fff',
+          }}>Track</span>
+        </Link>
+
+        <nav style={{
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          gap: '4px',
+          overflowX: 'auto', 
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch',
+          minWidth: 0,
+          flex: 1,
+          padding: '0 10px'
+        }}>
+          <NavLink to="/" end style={linkStyle}>Home</NavLink>
+          <NavLink to="/standings" style={linkStyle}>Standings</NavLink>
+          <NavLink to="/form" style={linkStyle}>Drivers</NavLink>
+          <NavLink to="/predictions" style={linkStyle}>Predictions</NavLink>
+          <NavLink to="/telemetry" style={linkStyle}>Telemetry</NavLink>
+          <NavLink to="/pitstrategy" style={linkStyle}>Pit Strategy</NavLink>
+          <NavLink to="/h2h" style={linkStyle}>H2H</NavLink>
+          <NavLink to="/circuit" style={linkStyle}>Circuits</NavLink>
+          <NavLink to="/cars" style={linkStyle}>Cars</NavLink>
+        </nav>
+
+        <Link to="/regulations" style={{
+          fontFamily: "'Formula1', sans-serif",
+          fontSize: '9px', color: '#801917ff',
+          fontWeight: 900,
+          padding: '8px 16px', borderRadius: '8px',
+          border: '1px solid #E4002B',
+          background: 'rgba(0, 0, 0, 0.1)',
+          flexShrink: 0, whiteSpace: 'nowrap',
+          textTransform: 'uppercase',
+          letterSpacing: '1.5px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          textDecoration: 'none',
+          transition: 'all 0.2s',
+          boxShadow: '0 0 10px rgba(228, 0, 43, 0.2)',
+        }} onMouseEnter={e => {
+  e.currentTarget.style.background = '#E4002B';
+  e.currentTarget.style.color = '#FFFFFF';
+  e.currentTarget.style.boxShadow = '0 0 12px rgba(228, 0, 43, 0.5)';
+}} 
+onMouseLeave={e => {
+  e.currentTarget.style.background = 'rgba(228, 0, 43, 0.08)';
+  e.currentTarget.style.color = '#E4002B';
+  e.currentTarget.style.boxShadow = 'none';
+        }}>
+          REGULATIONS
+        </Link>
+      </header>
+
+      {isHome ? (
+        <div style={{ paddingTop: '60px' }}>{children}</div>
+      ) : (
+        <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '84px 28px 40px' }}>
+          {children}
+        </main>
+      )}
+    </>
+  );
+}
 
 export default function App() {
   return (
     <BrowserRouter>
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 100,
-        background: 'rgba(8,8,15,0.92)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
-        padding: '0 32px',
-        display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', height: '60px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '32px', height: '32px',
-            background: '#e8002d',
-            clipPath: 'polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%, 15% 50%)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '11px', fontWeight: '900', color: '#fff',
-          }}>F1</div>
-          <span style={{
-            fontSize: '20px', fontWeight: '900',
-            letterSpacing: '-.03em', fontFamily: "'Titillium Web', sans-serif",
-          }}>
-            F1<span style={{ color: '#e8002d' }}>Track</span>
-          </span>
-        </div>
+      <Routes>
+        {/* Cars — fully standalone, no Layout */}
+        <Route path="/cars" element={<CarsPage />} />
 
-        <nav style={navStyle}>
-          <NavLink to="/" end style={linkStyle}>Standings</NavLink>
-          <NavLink to="/form" style={linkStyle}>Driver Form</NavLink>
-          <NavLink to="/predictions" style={linkStyle}>Predictions</NavLink>
-          <NavLink to="/h2h" style={linkStyle}>Head to Head</NavLink>
-          <NavLink to="/circuit" style={linkStyle}>Circuit History</NavLink>
-          <NavLink to="/pitstrategy" style={linkStyle}>Pit Strategy</NavLink>
-        </nav>
-
-        <div style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: '11px', color: '#6b6b90',
-          padding: '4px 10px', borderRadius: '6px',
-          border: '1px solid rgba(255,255,255,0.07)',
-          background: 'rgba(15,15,26,0.8)',
-        }}>
-          API: localhost:8081
-        </div>
-      </header>
-
-      <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '32px' }}>
-        <Routes>
-          <Route path="/drivers/:id" element={<DriverPage />} />
-          <Route path="/" element={<StandingsPage />} />
-          <Route path="/form" element={<FormPage />} />
-          <Route path="/predictions" element={<PredictionsPage />} />
-          <Route path="/h2h" element={<H2HPage />} />
-          <Route path="/circuit" element={<CircuitPage />} />
-          <Route path="/pitstrategy" element={<PitStrategyPage />} />
-        </Routes>
-      </main>
+        {/* All other pages — wrapped in Layout */}
+        <Route path="/" element={<Layout><HomePage /></Layout>} />
+        <Route path="/standings" element={<Layout><StandingsPage /></Layout>} />
+        <Route path="/drivers/:id" element={<Layout><DriverPage /></Layout>} />
+        <Route path="/form" element={<Layout><FormPage /></Layout>} />
+        <Route path="/predictions" element={<Layout><PredictionsPage /></Layout>} />
+        <Route path="/h2h" element={<Layout><H2HPage /></Layout>} />
+        <Route path="/circuit" element={<Layout><CircuitPage /></Layout>} />
+        <Route path="/pitstrategy" element={<Layout><PitStrategyPage /></Layout>} />
+        <Route path="/telemetry" element={<Layout><TelemetryPage /></Layout>} />
+        <Route path="/regulations" element={<Layout><Regulation2026Page /></Layout>} />
+        <Route path="/race-results/:raceId" element={<Layout><RaceResultsPage /></Layout>} />
+        {/* Alias for legacy or external links */}
+        <Route path="/DriverStandings" element={<Navigate to="/standings" replace />} />
+      </Routes>
     </BrowserRouter>
-  )
+  );
 }

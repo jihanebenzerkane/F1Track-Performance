@@ -19,7 +19,7 @@ public class PredictionController {
     @Autowired
     private RaceResultDAO resultDAO;
 
-    // GET /api/predictions/race/monaco
+    
     @GetMapping("/race/{circuitId}")
     public List<Map<String, Object>> predictRaceWinner(
             @PathVariable String circuitId) {
@@ -31,10 +31,10 @@ public class PredictionController {
         for (Driver driver : activeDrivers) {
             String driverId = driver.getId();
 
-            // Component 1 — circuit win rate
+           
             double circuitWinRate = getCircuitWinRate(driverId, circuitId);
 
-            // Component 2 — recent form (last 5 races)
+            
             double recentFormScore = getRecentFormScore(driverId);
 
             // Final score
@@ -46,12 +46,24 @@ public class PredictionController {
                 entry.put("team", driver.getTeam());
                 entry.put("circuitWinRate", Math.round(circuitWinRate * 1000.0) / 10.0 + "%");
                 entry.put("recentFormScore", Math.round(recentFormScore * 100.0) / 100.0);
-                entry.put("predictionScore", Math.round(predictionScore * 1000.0) / 10.0);
+                entry.put("rawScore", predictionScore);
                 predictions.add(entry);
             }
         }
 
-        // sort by prediction score descending
+        
+        double totalRawScore = predictions.stream()
+                .mapToDouble(p -> (double) p.get("rawScore"))
+                .sum();
+
+        for (Map<String, Object> p : predictions) {
+            double raw = (double) p.get("rawScore");
+            double normalized = totalRawScore > 0 ? (raw / totalRawScore) * 100.0 : (100.0 / predictions.size());
+            p.put("predictionScore", Math.round(normalized * 10.0) / 10.0);
+            p.remove("rawScore");
+        }
+
+       
         predictions.sort((a, b) -> Double.compare(
                 (double) b.get("predictionScore"),
                 (double) a.get("predictionScore")
@@ -65,7 +77,7 @@ public class PredictionController {
         return predictions;
     }
 
-    // GET /api/predictions/form/max-verstappen
+    
     @GetMapping("/form/{driverId}")
     public Map<String, Object> getDriverForm(@PathVariable String driverId) {
         Map<String, Object> response = new LinkedHashMap<>();
@@ -94,8 +106,7 @@ public class PredictionController {
                     int finish = rs.getInt("finish");
                     double points = rs.getDouble("points");
 
-                    // normalize finish position to 0-1 score
-                    // P1 = 1.0, P20 = 0.05, DNF (0) = 0
+                    
                     double posScore = finish > 0 ? Math.max(0, (21 - finish) / 20.0) : 0;
                     if (i < weights.length) {
                         weightedScore += posScore * weights[i];
@@ -123,7 +134,7 @@ public class PredictionController {
         return response;
     }
 
-    // GET /api/predictions/pitstop/max-verstappen/monaco
+    
     @GetMapping("/pitstop/{driverId}/{circuitId}")
     public Map<String, Object> predictOptimalPitStop(
             @PathVariable String driverId,
@@ -133,18 +144,14 @@ public class PredictionController {
         List<Map<String, Object>> historicalStops = new ArrayList<>();
 
         String query =
-                "SELECT r.year, ps.lap, ps.stop, ps.time as duration, " +
-                        "rd.position_number as finish_position " +
-                        "FROM pit_stop ps " +
-                        "JOIN race r ON ps.race_id = r.id " +
+                "SELECT r.year, rd.race_pit_stops, rd.position_number AS finish_position " +
+                        "FROM race_data rd " +
+                        "JOIN race r ON rd.race_id = r.id " +
                         "JOIN circuit c ON r.circuit_id = c.id " +
-                        "JOIN race_data rd ON rd.race_id = r.id " +
-                        "  AND rd.driver_id = ps.driver_id " +
-                        "  AND rd.type = 'RACE_RESULT' " +
-                        "WHERE ps.driver_id = ? AND c.id = ? " +
-                        "ORDER BY r.year DESC, ps.stop ASC";
+                        "WHERE rd.driver_id = ? AND c.id = ? AND rd.type = 'RACE_RESULT' " +
+                        "ORDER BY r.year DESC, r.round DESC";
 
-        Map<Integer, List<Integer>> stopLaps = new HashMap<>();
+        List<Integer> pitCounts = new ArrayList<>();
 
         try (Connection c = DataBaseManager.connect();
              PreparedStatement ps = c.prepareStatement(query)) {
@@ -152,17 +159,17 @@ public class PredictionController {
             ps.setString(2, circuitId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    int stopNum = rs.getInt("stop");
-                    int lap = rs.getInt("lap");
-
-                    stopLaps.computeIfAbsent(stopNum, k -> new ArrayList<>()).add(lap);
-
+                    int pits = rs.getInt("race_pit_stops");
+                    if (!rs.wasNull() && pits >= 0) {
+                        pitCounts.add(pits);
+                    }
                     Map<String, Object> stop = new LinkedHashMap<>();
                     stop.put("year", rs.getInt("year"));
-                    stop.put("stopNumber", stopNum);
-                    stop.put("lap", lap);
-                    stop.put("duration", rs.getString("duration"));
+                    stop.put("stopNumber", Math.max(pits, 0));
+                    stop.put("lap", null);
+                    stop.put("duration", null);
                     stop.put("finishPosition", rs.getInt("finish_position"));
+                    stop.put("racePitStops", pits);
                     historicalStops.add(stop);
                 }
             }
@@ -170,23 +177,16 @@ public class PredictionController {
             e.printStackTrace();
         }
 
-        // calculate average optimal lap per stop number
         List<Map<String, Object>> recommendations = new ArrayList<>();
-        stopLaps.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .forEach(entry -> {
-                    int stopNum = entry.getKey();
-                    List<Integer> laps = entry.getValue();
-                    double avgLap = laps.stream()
-                            .mapToInt(Integer::intValue)
-                            .average()
-                            .orElse(0);
-                    Map<String, Object> rec = new LinkedHashMap<>();
-                    rec.put("stopNumber", stopNum);
-                    rec.put("recommendedLap", (int) Math.round(avgLap));
-                    rec.put("basedOnRaces", laps.size());
-                    recommendations.add(rec);
-                });
+        if (!pitCounts.isEmpty()) {
+            double avg = pitCounts.stream().mapToInt(i -> i).average().orElse(0);
+            Map<String, Object> rec = new LinkedHashMap<>();
+            rec.put("stopNumber", 1);
+            rec.put("recommendedLap", 0);
+            rec.put("basedOnRaces", pitCounts.size());
+            rec.put("summary", "Average pit stops per race at this circuit: " + String.format("%.1f", avg));
+            recommendations.add(rec);
+        }
 
         response.put("driver", driverId);
         response.put("circuit", circuitId);
@@ -197,7 +197,7 @@ public class PredictionController {
         return response;
     }
 
-    // ── private helpers ──────────────────────────────────────────────
+    
 
     private double getCircuitWinRate(String driverId, String circuitId) {
         String query =

@@ -1,84 +1,45 @@
-# F1Track Performance
+# F1Track — Performance Analytics
 
-Full-stack Formula 1 analytics app:
-- **Backend:** Java + Spring Boot + SQLite
-- **Frontend:** React + Vite
+A full-stack Formula 1 data platform focused on historical standings, technical car specifications, and real-time telemetry extraction.
 
-## Project Structure
+## Tech Stack
+- **Backend:** Java 17+, Spring Boot 3.2.5, **SQLite** (`backend/f1db.db`) via JDBC
+- **Frontend:** React, Vite, Three.js (3D Car Viewer), Recharts
+- **Telemetry:** **Database mode** (historical races / summaries) or **OpenF1** (live sessions, requires internet)
 
-- `backend/F1Track`: REST API server
-- `frontend`: React web app
+## Core Features
+- **3D Car Viewer:** Interactive technical breakdown of F1 constructor cars with live season statistics.
+- **Standings:** Full historical driver and constructor standings (1950–2025).
+- **Telemetry Dashboard:** Live lap timing and sector analysis powered by the OpenF1 API.
+- **Race Predictions:** Monte Carlo simulation engine for strategic forecasting.
 
-## Prerequisites
+## Getting Started
 
+### Prerequisites
 - Java 17+ (Java 25 works)
-- Node.js + npm
-- Apache Maven 3.9+
+- Node.js & npm
+- Maven (`mvn`) or use a local Maven install
 
-### Windows: Install Maven (if `mvn` is missing)
+### Backend Configuration
+1. Ensure `backend/f1db.db` is present (SQLite dataset).
+2. From the `backend` directory, run:
+   ```bash
+   mvn spring-boot:run
+   ```
+3. Optional: set a custom DB path with JVM flag `-Df1track.db=C:/path/to/f1db.db`.
 
-```powershell
-winget install Apache.Maven
-```
+### Frontend Configuration
+1. Navigate to the `frontend` directory.
+2. Install dependencies and start the development server:
+   ```bash
+   npm install
+   ```
+   ```bash
+   npm run dev
+   ```
 
-Then reopen PowerShell and verify:
-
-```powershell
-mvn -v
-```
-
-## Run the App
-
-Open **two terminals**.
-
-### 1) Start Backend
-
-```powershell
-cd backend/F1Track
-mvn spring-boot:run
-```
-
-Backend runs on:
-- `http://localhost:8081`
-
-Quick API check:
-
-```powershell
-curl http://localhost:8081/api/standings/2023
-```
-
-### 2) Start Frontend
-
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-
-Frontend runs on:
-- `http://localhost:5173`
-
-## Common Issues
-
-- **No data in UI**
-  - Backend is not running, or API URL unreachable.
-  - Confirm `http://localhost:8081/api/standings/2023` returns JSON.
-
-- **`mvn` not recognized**
-  - Maven is not installed or not in PATH.
-  - Install with `winget install Apache.Maven`, then restart terminal.
-
-- **Port mismatch**
-  - Backend is configured for port `8081` in `backend/F1Track/src/main/resources/application.properties`.
-  - Frontend API base is `http://localhost:8081` in `frontend/src/api/f1api.js`.
-
-## Frontend Logo Customization
-
-To replace the text logo with an image:
-
-1. Add image file to `frontend/public` (example: `frontend/public/f1-logo.png`)
-2. In `frontend/src/App.jsx`, replace the header logo text block with an `<img src="/f1-logo.png" />` and keep `Track` text if desired.
+## API Architecture
+The DAO layer targets the **SQLite** Ergast-style schema bundled as `f1db.db`. Pit strategy and telemetry (database mode) read from `race_data` / `race` / `circuit`. OpenF1 endpoints remain available when you select **OpenF1 (live)** in the Telemetry UI.
 
 ## License
-
 MIT

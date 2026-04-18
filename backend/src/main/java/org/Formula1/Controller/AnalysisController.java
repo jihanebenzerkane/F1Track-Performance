@@ -64,23 +64,25 @@ public class AnalysisController {
     public List<Map<String, Object>> getRacePitStops(@PathVariable int raceId) {
         List<Map<String, Object>> results = new ArrayList<>();
         String query =
-                "SELECT ps.driver_id, ps.stop, ps.lap, " +
-                        "ps.time as duration, ps.tyre_manufacturer_id as tyre " +
-                        "FROM pit_stop ps " +
-                        "WHERE ps.race_id = ? " +
-                        "ORDER BY ps.lap ASC, ps.stop ASC";
+                "SELECT rd.driver_id, COALESCE(rd.race_pit_stops, 0) AS pit_stops, " +
+                        "rd.position_number AS position " +
+                        "FROM race_data rd " +
+                        "WHERE rd.race_id = ? AND rd.type = 'RACE_RESULT' " +
+                        "ORDER BY rd.position_display_order ASC";
 
         try (Connection c = DataBaseManager.connect();
-             PreparedStatement ps = c.prepareStatement(query)) {
+                PreparedStatement ps = c.prepareStatement(query)) {
             ps.setInt(1, raceId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Map<String, Object> entry = new LinkedHashMap<>();
+                    int pits = rs.getInt("pit_stops");
                     entry.put("driver", rs.getString("driver_id"));
-                    entry.put("stopNumber", rs.getInt("stop"));
-                    entry.put("lap", rs.getInt("lap"));
-                    entry.put("duration", rs.getString("duration"));
-                    entry.put("tyre", rs.getString("tyre"));
+                    entry.put("stopNumber", pits);
+                    entry.put("lap", 0);
+                    entry.put("duration", pits + " stop(s) (race total)");
+                    entry.put("tyre", "—");
+                    entry.put("finishPosition", rs.getInt("position"));
                     results.add(entry);
                 }
             }
@@ -211,6 +213,52 @@ public class AnalysisController {
         response.put("driver1TotalPoints", d1TotalPoints);
         response.put("driver2TotalPoints", d2TotalPoints);
         response.put("races", races);
+        return response;
+    }
+    @GetMapping("/race/{raceId}/results")
+    public Map<String, Object> getRaceResults(@PathVariable int raceId) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        List<Map<String, Object>> classification = new ArrayList<>();
+
+        String query =
+                "SELECT rd.position_number, rd.driver_id, d.name as driver_name, " +
+                        "rd.constructor_id, c.name as team_name, " +
+                        "rd.race_grid_position_number as grid, " +
+                        "rd.race_points as points, rd.race_time as time, " +
+                        "rd.race_fastest_lap as fastest_lap, " +
+                        "rd.race_reason_retired as dnf_reason " +
+                        "FROM race_data rd " +
+                        "JOIN driver d ON rd.driver_id = d.id " +
+                        "JOIN constructor c ON rd.constructor_id = c.id " +
+                        "WHERE rd.race_id = ? " +
+                        "AND rd.type = 'RACE_RESULT' " +
+                        "ORDER BY rd.position_number ASC";
+
+        try (Connection c = DataBaseManager.connect();
+             PreparedStatement ps = c.prepareStatement(query)) {
+            ps.setInt(1, raceId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> entry = new LinkedHashMap<>();
+                    entry.put("position", rs.getInt("position_number"));
+                    entry.put("driverId", rs.getString("driver_id"));
+                    entry.put("driver", rs.getString("driver_name"));
+                    entry.put("constructorId", rs.getString("constructor_id"));
+                    entry.put("team", rs.getString("team_name"));
+                    entry.put("grid", rs.getInt("grid"));
+                    entry.put("points", rs.getDouble("points"));
+                    entry.put("time", rs.getString("time"));
+                    entry.put("fastestLap", rs.getBoolean("fastest_lap"));
+                    entry.put("dnfReason", rs.getString("dnf_reason"));
+                    classification.add(entry);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        response.put("raceId", raceId);
+        response.put("results", classification);
         return response;
     }
     @GetMapping("/circuit/{circuitId}/history")

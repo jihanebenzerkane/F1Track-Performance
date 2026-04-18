@@ -25,20 +25,45 @@ export const getFlag = (nationality) => {
   return code ? String.fromCodePoint(...[...code].map(c => 127397 + c.charCodeAt())) : '🏁'
 }
 
+export const getNatCode = (nationality) => {
+  if (!nationality) return '---';
+  const mapping = {
+    'netherlands': 'NED',
+    'united-kingdom': 'GBR',
+    'monaco': 'MON',
+    'australia': 'AUS',
+    'spain': 'ESP',
+    'mexico': 'MEX',
+    'france': 'FRA',
+    'canada': 'CAN',
+    'germany': 'GER',
+    'japan': 'JPN',
+    'thailand': 'THA',
+    'china': 'CHN',
+    'united-states-of-america': 'USA',
+    'italy': 'ITA',
+    'finland': 'FIN',
+    'brazil': 'BRA',
+    'denmark': 'DEN',
+    'new-zealand': 'NZL'
+  }
+  return mapping[nationality.toLowerCase().trim()] || nationality.substring(0, 3).toUpperCase();
+}
+
 export const getTeamColor = (team) => {
   const colors = {
-    'Red Bull': '#3671C6',
-    Ferrari: '#E8002D',
-    McLaren: '#FF8000',
-    Mercedes: '#27F4D2',
-    'Aston Martin': '#229971',
-    Alpine: '#0093CC',
-    Williams: '#64C4FF',
-    'Racing Bulls': '#6692FF',
-    Haas: '#B6BABD',
-    Audi: '#C8C8C8',
-    'Kick Sauber': '#52E252',
-    Cadillac: '#333333',
+    'Red Bull': '#D4AF37',
+    'Ferrari': '#C5A059',
+    'Mercedes': '#A3A3A3',
+    'Aston Martin': '#006F62', // Keeping some unique Identifiers is okay, but subtle
+    'Alpine': '#0090FF',
+    'McLaren': '#FF8700',
+    'Williams': '#005AFF',
+    'Haas': '#FFFFFF',
+    'AlphaTauri': '#FFFFFF',
+    'Racing Bulls': '#FFFFFF',
+    'Audi': '#A3A3A3',
+    'Cadillac': '#FFFFFF',
   }
   return colors[team] || '#ffffff'
 }
@@ -57,4 +82,24 @@ export const getDriverImageUrl = (driverId) => {
     'sergio-perez': 'https://www.formula1.com/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png',
   }
   return images[driverId] || null
+}
+
+export const getConstructorImageUrl = (team) => {
+  if (!team) return null;
+  const key = team.toLowerCase().replace(/\s+/g, '-');
+  const images = {
+    'red-bull': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/red-bull-racing.png',
+    'ferrari': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/ferrari.png',
+    'mclaren': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/mclaren.png',
+    'mercedes': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/mercedes.png',
+    'aston-martin': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/aston-martin.png',
+    'alpine': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/alpine.png',
+    'williams': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/williams.png',
+    'racing-bulls': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/rb.png',
+    'rb': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/rb.png',
+    'haas': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/haas.png',
+    'audi': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/kick-sauber.png',
+    'kick-sauber': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/kick-sauber.png',
+  };
+  return images[key] || null;
 }

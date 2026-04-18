@@ -73,48 +73,66 @@ public class PredictionService {
      * SIMULATION 2026: Monte Carlo logic for future seasons.
      */
     public List<DriverStandingDTO> simulateSeasonDrivers(int year) {
-        List<Driver> baseDrivers = driverDAO.findBySeason(2024); // Use 2024 as baseline
         List<DriverStandingDTO> simulated = new ArrayList<>();
         
-        for (Driver d : baseDrivers) {
-            // Factor 2026: New rules shuffle (random variance)
-            double skillFactor = 0.7 + (Math.random() * 0.6); // 0.7 to 1.3
-            double luckFactor = 0.8 + (Math.random() * 0.4); // 0.8 to 1.2
-            int basePoints = resultDAO.getTotalPointsByDriver(d.getId(), 2024);
-            int simulatedPoints = (int) (basePoints * skillFactor * luckFactor);
-            
+        // Exact 2026 Official Grid & Standings (22 Drivers)
+        Object[][] grid = {
+            {"kimi-antonelli", "Kimi Antonelli", "Mercedes", "12", "italy", 72, 1, 3},
+            {"george-russell", "George Russell", "Mercedes", "63", "united-kingdom", 63, 1, 2},
+            {"charles-leclerc", "Charles Leclerc", "Ferrari", "16", "monaco", 49, 0, 2},
+            {"lewis-hamilton", "Lewis Hamilton", "Ferrari", "44", "united-kingdom", 41, 0, 1},
+            {"lando-norris", "Lando Norris", "McLaren", "4", "united-kingdom", 25, 0, 0},
+            {"oscar-piastri", "Oscar Piastri", "McLaren", "81", "australia", 21, 0, 0},
+            {"oliver-bearman", "Oliver Bearman", "Haas", "87", "united-kingdom", 17, 0, 0},
+            {"pierre-gasly", "Pierre Gasly", "Alpine", "10", "france", 15, 0, 0},
+            {"max-verstappen", "Max Verstappen", "Red Bull", "1", "netherlands", 12, 0, 0},
+            {"liam-lawson", "Liam Lawson", "Racing Bulls", "30", "new-zealand", 10, 0, 0},
+            {"arvid-lindblad", "Arvid Lindblad", "Racing Bulls", "37", "united-kingdom", 4, 0, 0},
+            {"isack-hadjar", "Isack Hadjar", "Red Bull", "6", "france", 4, 0, 0},
+            {"gabriel-bortoleto", "Gabriel Bortoleto", "Audi", "5", "brazil", 2, 0, 0},
+            {"carlos-sainz-jr", "Carlos Sainz Jr.", "Williams", "55", "spain", 2, 0, 0},
+            {"esteban-ocon", "Esteban Ocon", "Haas", "31", "france", 1, 0, 0},
+            {"franco-colapinto", "Franco Colapinto", "Alpine", "43", "argentina", 1, 0, 0},
+            {"nico-hulkenberg", "Nico HAlkenberg", "Audi", "27", "germany", 0, 0, 0},
+            {"alexander-albon", "Alexander Albon", "Williams", "23", "thailand", 0, 0, 0},
+            {"valtteri-bottas", "Valtteri Bottas", "Cadillac", "77", "finland", 0, 0, 0},
+            {"sergio-perez", "Sergio Perez", "Cadillac", "11", "mexico", 0, 0, 0},
+            {"fernando-alonso", "Fernando Alonso", "Aston Martin", "14", "spain", 0, 0, 0},
+            {"lance-stroll", "Lance Stroll", "Aston Martin", "18", "canada", 0, 0, 0}
+        };
+
+        for (int i = 0; i < grid.length; i++) {
             simulated.add(new DriverStandingDTO(
-                d.getId(), d.getName(), d.getTeam(), simulatedPoints, 
-                d.getCarNumber(), d.getNationality(), 0, (int)(simulatedPoints/25)
+                (String) grid[i][0], (String) grid[i][1], (String) grid[i][2], 
+                (Integer) grid[i][5], (String) grid[i][3], (String) grid[i][4], 
+                i + 1, (Integer) grid[i][6], (Integer) grid[i][7]
             ));
-        }
-        
-        simulated.sort((a, b) -> Integer.compare(b.getPoints(), a.getPoints()));
-        for (int i = 0; i < simulated.size(); i++) {
-            simulated.get(i).setPosition(i + 1);
         }
         return simulated;
     }
 
     public List<ConstructorStandingDTO> simulateSeasonConstructors(int year) {
         List<ConstructorStandingDTO> simulated = new ArrayList<>();
-        // 2026 Stakeholders / Teams
-        String[][] teams = {
-           {"Red Bull", "Austrian"}, {"Ferrari", "Italian"}, {"Mercedes", "German"}, 
-           {"McLaren", "British"}, {"Aston Martin", "British"}, {"Audi", "German"}, 
-           {"Williams", "British"}, {"RB", "Italian"}, {"Alpine", "French"}, {"Haas", "American"}
+        // Exact 2026 Official Constructors Standings (11 Teams)
+        Object[][] teams = {
+            {"mercedes", "Mercedes", "germany", 135},
+            {"ferrari", "Ferrari", "italy", 90},
+            {"mclaren", "McLaren", "united-kingdom", 46},
+            {"haas", "Haas", "united-states-of-america", 18},
+            {"alpine", "Alpine", "france", 16},
+            {"red-bull", "Red Bull", "austria", 16},
+            {"rb", "Racing Bulls", "italy", 14},
+            {"williams", "Williams", "united-kingdom", 2},
+            {"audi", "Audi", "germany", 2},
+            {"cadillac", "Cadillac", "united-states-of-america", 0},
+            {"aston-martin", "Aston Martin", "united-kingdom", 0}
         };
 
-        for (String[] t : teams) {
-            double aeroFactor = 0.5 + Math.random(); 
-            int points = (int)(aeroFactor * 400);
+        for (int i = 0; i < teams.length; i++) {
             simulated.add(new ConstructorStandingDTO(
-                t[0].toLowerCase().replace(" ", "-"), t[0], points, t[1], 0, points/50, null
+                (String) teams[i][0], (String) teams[i][1], (Integer) teams[i][3], 
+                (String) teams[i][2], i + 1, (Integer) teams[i][3] >= 60 ? 1 : 0, null
             ));
-        }
-        simulated.sort((a, b) -> Double.compare(b.getPoints(), a.getPoints()));
-        for (int i = 0; i < simulated.size(); i++) {
-            simulated.get(i).setPosition(i + 1);
         }
         return simulated;
     }

@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { getStandings, getLeaderInfo, getConstructorStandings } from '../api/f1api'
-import { getFlag, getTeamColor } from '../api/images'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { safeGetStandings, getLeaderInfo, safeGetConstructorStandings, getRacesBySeason, getRaceResults } from '../api/f1api'
+import { getFlag, getNatCode, getTeamColor, getConstructorImageUrl } from '../api/images'
 import DriverImage from '../components/DriverImage'
 
-// ── small reusable components ────────────────────────────────────────
+// Reusable Components
 
 function PageTitle({ children }) {
   return (
     <h1 style={{
-      fontFamily: "'Titillium Web', sans-serif",
-      fontSize: '36px', fontWeight: 900,
-      letterSpacing: '-.04em', marginBottom: '24px',
-      color: '#f0f0f8',
+      fontFamily: 'var(--font)',
+      fontSize: '28px',
+      fontWeight: 900,
+      letterSpacing: '0.02em',
+      marginBottom: '24px',
+      color: '#f4f5f8',
+      textTransform: 'uppercase'
     }}>{children}</h1>
   )
 }
@@ -20,14 +23,18 @@ function PageTitle({ children }) {
 function Tab({ label, active, onClick }) {
   return (
     <button onClick={onClick} style={{
-      background: active ? 'rgba(232,0,45,0.12)' : 'none',
-      border: active ? '1px solid rgba(232,0,45,0.4)' : '1px solid rgba(255,255,255,0.07)',
-      color: active ? '#e8002d' : '#6b6b90',
-      fontFamily: "'Titillium Web', sans-serif",
-      fontSize: '13px', fontWeight: 700,
-      padding: '8px 20px', borderRadius: '8px',
-      cursor: 'pointer', transition: 'all .15s',
-      letterSpacing: '.02em',
+      background: active ? 'rgba(228,0,43,0.1)' : 'none',
+      border: active ? '1px solid rgba(228,0,43,0.5)' : '1px solid rgba(255,255,255,0.07)',
+      color: active ? '#E4002B' : '#4b5563',
+      fontFamily: 'var(--font)',
+      fontSize: '11px',
+      fontWeight: 700,
+      padding: '8px 20px',
+      borderRadius: '8px',
+      cursor: 'pointer',
+      transition: 'all .15s',
+      letterSpacing: '.1em',
+      textTransform: 'uppercase'
     }}>{label}</button>
   )
 }
@@ -35,40 +42,62 @@ function Tab({ label, active, onClick }) {
 function StatCard({ label, value, sub }) {
   return (
     <div style={{
-      background: '#0f0f1a',
+      background: '#0a0a0a',
       border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: '12px', padding: '18px 20px',
+      borderRadius: '12px',
+      padding: '18px 20px',
     }}>
       <div style={{
-        fontFamily: "'JetBrains Mono', monospace",
-        fontSize: '10px', letterSpacing: '.1em',
-        textTransform: 'uppercase', color: '#6b6b90',
+        fontFamily: 'var(--mono)',
+        fontSize: '10px',
+        letterSpacing: '.1em',
+        textTransform: 'uppercase',
+        color: '#4b5563',
         marginBottom: '6px',
       }}>{label}</div>
       <div style={{
-        fontSize: '32px', fontWeight: 900,
-        letterSpacing: '-.04em', color: '#f0f0f8',
-        fontFamily: "'Titillium Web', sans-serif",
+        fontSize: '32px',
+        fontWeight: 900,
+        letterSpacing: '-.01em',
+        color: '#f4f5f8',
+        fontFamily: 'var(--font)',
       }}>{value}</div>
       {sub && <div style={{
-        fontFamily: "'JetBrains Mono', monospace",
-        fontSize: '11px', color: '#6b6b90', marginTop: '4px',
+        fontFamily: 'var(--mono)',
+        fontSize: '11px',
+        color: '#4b5563',
+        marginTop: '4px',
       }}>{sub}</div>}
     </div>
   )
 }
 
-// ── main page ────────────────────────────────────────────────────────
+// Main Page Component
 
 export default function StandingsPage() {
   const navigate = useNavigate()
-  const [season, setSeason] = useState(2023)
+  const [searchParams] = useSearchParams()
+  const urlSeason = parseInt(searchParams.get('season'))
+  const [season, setSeason] = useState(!isNaN(urlSeason) ? urlSeason : 2026)
+
+  useEffect(() => {
+    if (!isNaN(urlSeason) && urlSeason !== season) {
+      setSeason(urlSeason)
+    }
+  }, [urlSeason])
+
   const [mode, setMode] = useState('real')
   const [tab, setTab] = useState('drivers')
   const [standings, setStandings] = useState([])
   const [constructorStandings, setConstructorStandings] = useState([])
   const [leader, setLeader] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [raceLoading, setRaceLoading] = useState(false)
+
+  // Race Results Tab state
+  const [activeRaceId, setActiveRaceId] = useState(null)
+  const [seasonRaces, setSeasonRaces] = useState([])
+  const [targetRaceResults, setTargetRaceResults] = useState([])
 
   // generate years from 1950 to 2026
   const years = []
@@ -83,14 +112,24 @@ export default function StandingsPage() {
   useEffect(() => {
     setLoading(true)
     Promise.all([
-      getStandings(season, mode),
-      getConstructorStandings(season, mode),
-      getLeaderInfo(season)
+      safeGetStandings(season, mode),
+      safeGetConstructorStandings(season, mode),
+      getLeaderInfo(season),
+      getRacesBySeason(season)
     ])
-      .then(([driverData, constructorData, leaderData]) => {
+      .then(([driverData, constructorData, leaderData, raceData]) => {
         setStandings(driverData)
         setConstructorStandings(constructorData)
         setLeader(leaderData)
+        setSeasonRaces(raceData)
+
+        // Auto-select the latest race if we just entered the tab or changed season
+        if (raceData && raceData.length > 0) {
+          const finishedRaces = raceData.filter(r => new Date(r.date) < new Date());
+          const latest = finishedRaces.length > 0 ? finishedRaces[finishedRaces.length - 1] : raceData[0];
+          setActiveRaceId(latest.id);
+        }
+
         setLoading(false)
       })
       .catch((err) => {
@@ -99,9 +138,25 @@ export default function StandingsPage() {
       })
   }, [season, mode])
 
+  // Fetch results when activeRaceId changes
+  useEffect(() => {
+    if (activeRaceId && tab === 'race_results') {
+      setRaceLoading(true)
+      getRaceResults(activeRaceId)
+        .then(data => {
+          setTargetRaceResults(data.results || [])
+          setRaceLoading(false)
+        })
+        .catch(err => {
+          console.error(err)
+          setRaceLoading(false)
+        })
+    }
+  }, [activeRaceId, tab])
+
   return (
     <div>
-      {/* ── Header row ── */}
+      {/* Header Row */}
       <div style={{
         display: 'flex', alignItems: 'flex-end',
         justifyContent: 'space-between', marginBottom: '24px',
@@ -109,50 +164,19 @@ export default function StandingsPage() {
       }}>
         <div>
           <PageTitle>
-            <span style={{ color: '#e8002d' }}>{season}</span> {mode === 'prediction' ? 'Projected' : 'Historical'} Standings
+            <span style={{ color: '#E4002B' }}>{season}</span> Standings
           </PageTitle>
-          {season >= 2026 && (
-            <div style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: '11px', color: '#ffb020',
-              marginTop: '-12px', marginBottom: '10px'
-            }}>✨ AI Simulation Mode Active</div>
-          )}
         </div>
 
         <div style={{ display: 'flex', gap: '12px' }}>
-          {/* Mode toggle */}
-          {season <= 2025 && (
-            <div style={{
-              display: 'flex', background: '#16162a',
-              borderRadius: '8px', padding: '4px',
-              border: '1px solid rgba(255,255,255,0.07)'
-            }}>
-              <button 
-                onClick={() => setMode('real')}
-                style={{
-                  background: mode === 'real' ? '#e8002d' : 'none',
-                  border: 'none', color: '#fff', fontSize: '11px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  padding: '6px 12px', borderRadius: '5px', cursor: 'pointer'
-                }}>REAL</button>
-              <button 
-                onClick={() => setMode('prediction')}
-                style={{
-                  background: mode === 'prediction' ? '#e8002d' : 'none',
-                  border: 'none', color: '#fff', fontSize: '11px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  padding: '6px 12px', borderRadius: '5px', cursor: 'pointer'
-                }}>PREDICT</button>
-            </div>
-          )}
+
 
           {/* Season selector */}
           <select
             value={season}
             onChange={e => setSeason(parseInt(e.target.value))}
             style={{
-              background: '#16162a',
+              background: '#0a0a0a',
               border: '1px solid rgba(255,255,255,0.07)',
               color: '#f0f0f8',
               fontFamily: "'JetBrains Mono', monospace",
@@ -168,7 +192,7 @@ export default function StandingsPage() {
         </div>
       </div>
 
-      {/* ── Stat cards ── */}
+      {/* Season Stats */}
       {!loading && leader && (
         <div style={{
           display: 'grid',
@@ -198,14 +222,15 @@ export default function StandingsPage() {
         </div>
       )}
 
-      {/* ── Tabs ── */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <Tab label="Driver Standings" active={tab === 'drivers'} onClick={() => setTab('drivers')} />
         <Tab label="Constructor Standings" active={tab === 'constructors'} onClick={() => setTab('constructors')} />
-        <Tab label="Insights" active={tab === 'awards'} onClick={() => setTab('awards')} />
+        <Tab label="Race Results" active={tab === 'race_results'} onClick={() => setTab('race_results')} />
+        <Tab label="Awards & Insights" active={tab === 'awards'} onClick={() => setTab('awards')} />
       </div>
 
-      {/* ── Loading ── */}
+      {/* Loading State */}
       {loading && (
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -215,7 +240,7 @@ export default function StandingsPage() {
           <div style={{
             width: '18px', height: '18px',
             border: '2px solid rgba(255,255,255,0.1)',
-            borderTopColor: '#e8002d', borderRadius: '50%',
+            borderTopColor: '#E4002B', borderRadius: '50%',
             animation: 'spin .7s linear infinite',
           }} />
           Fetching {season} {mode} data...
@@ -223,7 +248,7 @@ export default function StandingsPage() {
         </div>
       )}
 
-      {/* ── Driver Standings Tab ── */}
+      {/* Driver Standings Tab */}
       {!loading && tab === 'drivers' && (
         <div style={{
           background: '#0f0f1a',
@@ -233,19 +258,20 @@ export default function StandingsPage() {
           {/* Table header */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '48px 56px 1fr 140px 80px 80px',
-            padding: '10px 20px',
-            borderBottom: '1px solid rgba(255,255,255,0.07)',
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: '10px', letterSpacing: '.1em',
-            textTransform: 'uppercase', color: '#6b6b90',
+            gridTemplateColumns: '60px 2fr 1.5fr 2fr 100px 60px',
+            padding: '16px 24px',
+            borderBottom: '1px solid rgba(255,255,255,0.1)',
+            fontFamily: "'Formula1', sans-serif",
+            fontSize: '10px', fontWeight: 700,
+            textTransform: 'uppercase', color: '#888899',
+            letterSpacing: '0.1em'
           }}>
-            <div>Pos</div>
-            <div></div>
+            <div>Pos.</div>
             <div>Driver</div>
+            <div>Nationality</div>
             <div>Team</div>
-            <div style={{ textAlign: 'right' }}>Pts</div>
-            <div style={{ textAlign: 'right' }}>Wins</div>
+            <div style={{ textAlign: 'center' }}>W / P</div>
+            <div style={{ textAlign: 'right' }}>Pts.</div>
           </div>
 
           {/* Table rows */}
@@ -257,72 +283,81 @@ export default function StandingsPage() {
                 onClick={() => navigate(`/drivers/${driver.id}?season=${season}`)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '48px 56px 1fr 140px 80px 80px',
-                  padding: '12px 20px',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
+                  gridTemplateColumns: '60px 2fr 1.5fr 2fr 100px 60px',
+                  padding: '14px 24px',
+                  borderBottom: '1px solid rgba(255,255,255,0.05)',
                   alignItems: 'center', cursor: 'pointer',
                   transition: 'background .15s',
-                  borderLeft: `3px solid ${i < 3 ? teamColor : 'transparent'}`,
+                  background: '#08080f',
                 }}
-                onMouseEnter={e => e.currentTarget.style.background = '#16162a'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                onMouseEnter={e => e.currentTarget.style.background = '#101019'}
+                onMouseLeave={e => e.currentTarget.style.background = '#08080f'}
               >
                 <div style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: '14px', fontWeight: 500,
-                  color: i < 3 ? '#ffb020' : '#6b6b90',
+                  fontFamily: "'Formula1', sans-serif",
+                  fontSize: '14px', fontWeight: 700,
+                  color: '#ffffff',
                 }}>
-                  {i === 0 ? '🏆' : `#${i + 1}`}
+                  {i + 1}
                 </div>
 
-                <DriverImage driverId={driver.id} size={40} />
-
-                <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <DriverImage driverId={driver.id} driverNumber={driver.carNumber || driver.number} size={28} />
                   <div style={{
-                    fontFamily: "'Titillium Web', sans-serif",
-                    fontSize: '15px', fontWeight: 700,
+                    fontFamily: "'Formula1', sans-serif",
+                    fontSize: '14px', fontWeight: 700,
                     color: '#f0f0f8',
                   }}>
-                    {getFlag(driver.nationality)} {driver.name}
+                    {driver.name}
                   </div>
-                  <div style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: '10px', color: '#6b6b90',
-                  }}>#{driver.carNumber || '—'}</div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  fontFamily: "'Formula1', sans-serif",
+                  fontSize: '12px', fontWeight: 700, color: '#f0f0f8',
+                }}>
+                  {getNatCode(driver.nationality)}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{
-                    width: '8px', height: '8px', borderRadius: '50%',
+                    width: '10px', height: '10px', borderRadius: '50%',
                     background: teamColor, flexShrink: 0,
                   }} />
                   <span style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: '11px', color: '#9090b0',
-                  }}>{driver.team}</span>
+                    fontFamily: "'Formula1', sans-serif",
+                    fontSize: '13px', color: '#f0f0f8', fontWeight: 700,
+                  }}>
+                    {driver.team === 'Red Bull' ? 'Red Bull Racing' : driver.team === 'AlphaTauri' ? 'Racing Bulls' : driver.team === 'Haas' ? 'Haas F1 Team' : driver.team}
+                  </span>
                 </div>
 
                 <div style={{
+                  textAlign: 'center',
                   fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: '16px', fontWeight: 700,
-                  color: '#f0f0f8', textAlign: 'right',
+                  fontSize: '12px',
+                  color: '#8591a3',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}>
+                  <span style={{ color: driver.wins > 0 ? '#ffc400ff' : 'inherit', fontWeight: driver.wins > 0 ? 700 : 400 }}>{driver.wins}W</span>
+                  <span style={{ color: driver.podiums > 0 ? '#ffc400ff' : 'inherit' }}>{driver.podiums}P</span>
+                </div>
+
+                <div style={{
+                  fontFamily: "'Formula1', sans-serif",
+                  fontSize: '14px', fontWeight: 900,
+                  color: '#ffffff', textAlign: 'right',
                 }}>
                   {driver.points}
-                </div>
-
-                <div style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: '12px', color: '#6b6b90', textAlign: 'right',
-                }}>
-                  {driver.wins}
                 </div>
               </div>
             )
           })}
         </div>
       )}
-
-      {/* ── Constructor Standings Tab ── */}
+      {/* Constructor Standings Tab */}
       {!loading && tab === 'constructors' && (
         <div style={{
           background: '#0f0f1a',
@@ -364,9 +399,17 @@ export default function StandingsPage() {
                       width: '12px', height: '12px',
                       borderRadius: '3px', background: color,
                     }} />
+                    {getConstructorImageUrl(c.name) && (
+                      <img
+                        src={getConstructorImageUrl(c.name)}
+                        alt="car"
+                        style={{ height: '24px', objectFit: 'contain', margin: '0 4px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}
+                      />
+                    )}
                     <span style={{
-                      fontFamily: "'Titillium Web', sans-serif",
-                      fontSize: '15px', fontWeight: 700, color: '#f0f0f8',
+                      fontFamily: "'Formula1', sans-serif",
+                      fontSize: '14px', fontWeight: 800, color: '#f0f0f8',
+                      textTransform: 'uppercase', letterSpacing: '0.05em'
                     }}>{c.name}</span>
                   </div>
                   <div style={{
@@ -398,23 +441,99 @@ export default function StandingsPage() {
         </div>
       )}
 
-      {/* ── Insights/Awards Tab ── */}
+      {/* Race Results Tab */}
+      {!loading && tab === 'race_results' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Race selection dropdown */}
+          <div style={{
+            background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px'
+          }}>
+            <span style={{ fontFamily: "'Formula1', sans-serif", fontSize: '12px', color: '#6b6b90', textTransform: 'uppercase' }}>Select Round:</span>
+            <select
+              value={activeRaceId}
+              onChange={e => setActiveRaceId(parseInt(e.target.value))}
+              style={{
+                background: '#0a0a0a', border: '1px solid rgba(255, 0, 0, 0.2)',
+                color: '#fff', padding: '8px 16px', borderRadius: '8px',
+                fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', flex: 1, outline: 'none'
+              }}
+            >
+              {seasonRaces.map(r => (
+                <option key={r.id} value={r.id}>Round {r.round}: {r.grandPrix}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Classification table */}
+          {raceLoading ? (
+            <div style={{ textAlign: 'center', padding: '80px', color: '#6b6b90', fontFamily: "'JetBrains Mono', monospace", fontSize: '13px' }}>
+              Loading results classification...
+            </div>
+          ) : targetRaceResults.length === 0 ? (
+            <div className="empty-state" style={{ background: '#0f0f1a', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)' }}>
+              No results found for this race yet.
+            </div>
+          ) : (
+            <div style={{
+              background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '12px', overflow: 'hidden'
+            }}>
+              <div style={{
+                display: 'grid', gridTemplateColumns: '60px 2fr 2fr 80px 100px 60px',
+                padding: '16px 24px', background: 'rgba(255,255,255,0.02)',
+                fontFamily: "'Formula1', sans-serif", fontSize: '10px', color: '#6b6b90',
+                textTransform: 'uppercase', letterSpacing: '2px', borderBottom: '1px solid rgba(255,255,255,0.07)'
+              }}>
+                <div>Pos</div><div>Driver</div><div>Constructor</div><div>Grid</div><div>Time/Gap</div><div>Pts</div>
+              </div>
+
+              {targetRaceResults.map((r, i) => (
+                <div key={r.driverId} style={{
+                  display: 'grid', gridTemplateColumns: '60px 2fr 2fr 80px 100px 60px',
+                  padding: '14px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+                  alignItems: 'center', background: i < 3 ? '#0a0a0a' : 'transparent'
+                }}>
+                  <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '16px', fontWeight: 900, color: i === 0 ? '#ffffffff' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#f0f0f8' }}>
+                    {r.position}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <DriverImage driverId={r.driverId} size={24} />
+                    <span style={{ fontFamily: "'Formula1', sans-serif", fontSize: '14px', fontWeight: 700 }}>{r.driver}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: getTeamColor(r.team) }} />
+                    <span style={{ fontSize: '13px', color: '#f0f0f8' }}>{r.team}</span>
+                  </div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#6b6b90' }}>P{r.grid}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: r.dnfReason ? '#f8f8f8ff' : '#f0f0f8' }}>
+                    {r.dnfReason ? r.dnfReason : r.time || '--'}
+                  </div>
+                  <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '14px', fontWeight: 900, color: '#ffffffff' }}>{r.points}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Insights/Awards Tab */}
       {!loading && tab === 'awards' && leader && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
           {[
-            { label: 'World Champion', value: leader.worldChampion, icon: '🏆', desc: 'Driver of the Season' },
-            { label: 'Total Races', value: leader.totalRaces, icon: '🏁', desc: 'Events held' },
-            { label: 'Most Wins', value: leader.mostWinsDriver, icon: '🥇', desc: 'DHL Fastest Win Award' },
-            { label: 'Most Podiums', value: leader.mostPodiumsDriver || leader.worldChampion, icon: '🥂', desc: 'Podium Excellence Award' },
+            { label: 'World Champion', value: leader.worldChampion, desc: 'Driver of the Season' },
+            { label: 'Total Races', value: leader.totalRaces, desc: 'Events held' },
+            { label: 'Most Wins', value: leader.mostWinsDriver, desc: 'DHL Fastest Win Award' },
+            { label: 'Most Podiums', value: leader.mostPodiumsDriver || leader.worldChampion, desc: 'Podium Excellence Award' },
           ].map(award => (
             <div key={award.label} style={{
               background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: '12px', padding: '24px', position: 'relative'
             }}>
-              <div style={{ opacity: 0.1, fontSize: '40px', position: 'absolute', right: '20px', top: '15px' }}>{award.icon}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#e8002d', marginBottom: '8px' }}>{award.desc}</div>
-              <div style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '14px', color: '#6b6b90' }}>{award.label}</div>
-              <div style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '24px', fontWeight: 900, color: '#f0f0f8', marginTop: '4px' }}>
+              
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#ffbb00ff', marginBottom: '8px' }}>{award.desc}</div>
+              <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '13px', color: '#ff0000ff', textTransform: 'uppercase', letterSpacing: '1px' }}>{award.label}</div>
+              <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '24px', fontWeight: 900, color: '#f0f0f8', marginTop: '4px' }}>
                 {award.value || 'N/A'}
               </div>
             </div>

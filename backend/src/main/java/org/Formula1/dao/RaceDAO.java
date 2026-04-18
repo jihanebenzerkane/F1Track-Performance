@@ -12,8 +12,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class RaceDAO {
-    private final String BASE_QUERY = "SELECT r.id, r.date AS raceDate, gp.name AS grandPrix, r.year AS season, c.country_id AS country, c.name AS circuit "
-            +
+    private final String BASE_QUERY = "SELECT r.id, r.date AS raceDate, gp.name AS grandPrix, " +
+            "r.year AS season, r.round AS round, c.name AS circuit, r.circuit_id AS circuitSlug " +
             "FROM race r " +
             "LEFT JOIN grand_prix gp ON r.grand_prix_id = gp.id " +
             "LEFT JOIN circuit c ON r.circuit_id = c.id ";
@@ -21,7 +21,8 @@ public class RaceDAO {
     public List<Race> findAll() {
         List<Race> races = new ArrayList<>();
         try (Connection c = DataBaseManager.connect();
-                PreparedStatement ps = c.prepareStatement(BASE_QUERY + " ORDER BY r.year DESC, r.date DESC LIMIT 50");
+                PreparedStatement ps = c.prepareStatement(
+                        BASE_QUERY + " ORDER BY r.year DESC, r.date DESC LIMIT 50");
                 ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 races.add(map(rs));
@@ -52,7 +53,8 @@ public class RaceDAO {
     public List<Race> findBySeason(int season) {
         List<Race> races = new ArrayList<>();
         try (Connection c = DataBaseManager.connect();
-                PreparedStatement ps = c.prepareStatement(BASE_QUERY + " WHERE r.year = ? ORDER BY r.date ASC")) {
+                PreparedStatement ps = c.prepareStatement(
+                        BASE_QUERY + " WHERE r.year = ? ORDER BY r.round ASC")) {
             ps.setInt(1, season);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -81,13 +83,34 @@ public class RaceDAO {
         return race;
     }
 
+    public List<java.util.Map<String, Object>> findAllCircuits() {
+        List<java.util.Map<String, Object>> circuits = new ArrayList<>();
+        String query = "SELECT DISTINCT id, name, country_id AS countryId FROM circuit ORDER BY name ASC";
+        try (Connection c = DataBaseManager.connect();
+                PreparedStatement ps = c.prepareStatement(query);
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                java.util.Map<String, Object> circuit = new java.util.HashMap<>();
+                circuit.put("id", rs.getString("id"));
+                circuit.put("name", rs.getString("name"));
+                circuit.put("countryId", rs.getString("countryId"));
+                circuits.add(circuit);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return circuits;
+    }
+
     private Race map(ResultSet rs) throws SQLException {
         return new Race(
                 rs.getInt("id"),
                 rs.getString("raceDate"),
                 rs.getString("grandPrix"),
                 rs.getInt("season"),
-                rs.getString("country"),
-                rs.getString("circuit"));
+                rs.getInt("round"),
+                null,
+                rs.getString("circuit"),
+                rs.getString("circuitSlug"));
     }
 }

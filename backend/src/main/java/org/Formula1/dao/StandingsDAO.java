@@ -10,9 +10,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Data Access Object for F1 Standings using the Ergast Schema.
- */
 @Repository
 public class StandingsDAO {
 
@@ -21,7 +18,8 @@ public class StandingsDAO {
         String query = 
             "SELECT d.id as driverId, d.first_name, d.last_name, ds.points, d.permanent_number as number, d.nationality_country_id as nationality, ds.position_number as position, " +
             "(SELECT c.name FROM race_data rd2 JOIN constructor c ON rd2.constructor_id = c.id WHERE rd2.driver_id = d.id AND rd2.type = 'RACE_RESULT' AND rd2.race_id IN (SELECT id FROM race WHERE year = ?) ORDER BY rd2.race_id DESC LIMIT 1) as team, " +
-            "(SELECT COUNT(*) FROM race_data rd JOIN race r3 ON rd.race_id = r3.id WHERE rd.driver_id = d.id AND rd.position_number = 1 AND rd.type = 'RACE_RESULT' AND r3.year = ?) as wins " +
+            "(SELECT COUNT(*) FROM race_data rd JOIN race r3 ON rd.race_id = r3.id WHERE rd.driver_id = d.id AND rd.position_number = 1 AND rd.type = 'RACE_RESULT' AND r3.year = ?) as wins, " +
+            "(SELECT COUNT(*) FROM race_data rd JOIN race r3 ON rd.race_id = r3.id WHERE rd.driver_id = d.id AND rd.position_number <= 3 AND rd.type = 'RACE_RESULT' AND r3.year = ?) as podiums " +
             "FROM race_driver_standing ds " +
             "JOIN driver d ON ds.driver_id = d.id " +
             "JOIN race r ON ds.race_id = r.id " +
@@ -34,6 +32,7 @@ public class StandingsDAO {
             ps.setInt(2, year);
             ps.setInt(3, year);
             ps.setInt(4, year);
+            ps.setInt(5, year);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(new DriverStandingDTO(
@@ -44,7 +43,8 @@ public class StandingsDAO {
                         rs.getString("number"),
                         rs.getString("nationality"),
                         rs.getInt("position"),
-                        rs.getInt("wins")
+                        rs.getInt("wins"),
+                        rs.getInt("podiums")
                     ));
                 }
             }
@@ -110,8 +110,7 @@ public class StandingsDAO {
     public LeaderDTO getLeaderInfo(int year) {
         LeaderDTO leader = new LeaderDTO();
         try (Connection conn = DataBaseManager.connect()) {
-            // World Champion
-            String champQuery = "SELECT d.first_name || ' ' || d.last_name as name " +
+            String champQuery = "SELECT CONCAT(d.first_name, ' ', d.last_name) as name " +
                                 "FROM race_driver_standing ds JOIN driver d ON ds.driver_id = d.id " +
                                 "JOIN race r ON ds.race_id = r.id " +
                                 "WHERE r.year = ? AND r.round = (SELECT MAX(r2.round) FROM race_driver_standing ds2 JOIN race r2 ON ds2.race_id = r2.id WHERE r2.year = ?) " +
@@ -123,16 +122,25 @@ public class StandingsDAO {
                 if (rs.next()) leader.setWorldChampion(rs.getString("name"));
             }
 
-            // Total Races
             String racesQuery = "SELECT COUNT(*) FROM race WHERE year = ?";
             try (PreparedStatement ps = conn.prepareStatement(racesQuery)) {
                 ps.setInt(1, year);
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) leader.setTotalRaces(rs.getInt(1));
             }
+            String podiumsQuery = "SELECT CONCAT(d.first_name, ' ', d.last_name) as name " +
+                    "FROM race_data res JOIN driver d ON res.driver_id = d.id " +
+                    "JOIN race r ON res.race_id = r.id " +
+                    "WHERE r.year = ? AND res.position_number <= 3 AND res.type = 'RACE_RESULT' " +
+                    "GROUP BY d.id " +
+                    "ORDER BY COUNT(*) DESC LIMIT 1";
+            try (PreparedStatement ps = conn.prepareStatement(podiumsQuery)) {
+                ps.setInt(1, year);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) leader.setMostPodiumsDriver(rs.getString("name"));
+            }
 
-            // Most Wins
-            String winsQuery = "SELECT d.first_name || ' ' || d.last_name as name " +
+            String winsQuery = "SELECT CONCAT(d.first_name, ' ', d.last_name) as name " +
                                "FROM race_data res JOIN driver d ON res.driver_id = d.id " +
                                "JOIN race r ON res.race_id = r.id " +
                                "WHERE r.year = ? AND res.position_number = 1 AND res.type = 'RACE_RESULT' " +

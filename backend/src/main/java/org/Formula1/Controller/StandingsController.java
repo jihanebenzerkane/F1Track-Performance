@@ -143,4 +143,12 @@ public class StandingsController {
         }
         return result;
     }
+
+    @ExceptionHandler(Exception.class)
+    public org.springframework.http.ResponseEntity<String> handleException(Exception e) {
+        java.io.StringWriter sw = new java.io.StringWriter();
+        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        e.printStackTrace(pw);
+        return org.springframework.http.ResponseEntity.status(500).body(sw.toString());
+    }
 }

@@ -1,0 +1,5 @@
+[33m42aa925[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Fix backend schema integrations, database path discovery, DAO SQL mappings for F1DB, and frontend React crashes
+[33m2995233[m update
+[33m424dd79[m update
+[33mf797387[m Create README.md for F1Track project
+[33mea5335a[m Fix: converted backend from submodule to regular folder
