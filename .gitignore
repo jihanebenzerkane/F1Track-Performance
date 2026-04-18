@@ -1,0 +1,75 @@
+# Compiled files
+*.class
+*.jar
+*.war
+*.ear
+target/
+out/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# Database files (CRITICAL)
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+application-secrets.properties
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Docker
+*.pid
+
+# Test & scratch files
+artifacts/
+scratch/
+**/scratch/
+**/Test*.java
+**/Debug*.java
+
+# Large files (shouldn't be in Git)
+*.glb
+*.gltf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.zip
+*.tar.gz
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
