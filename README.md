@@ -43,3 +43,8 @@ The DAO layer targets the **SQLite** Ergast-style schema bundled as `f1db.db`. P
 
 ## License
 MIT
+
+<img width="2989" height="1999" alt="image" src="https://github.com/user-attachments/assets/bbc70784-4023-4173-a954-f10bd7686f8c" />
+<img width="3000" height="2000" alt="image" src="https://github.com/user-attachments/assets/96aa3b35-504c-4ec0-9c6f-4dad3e1227c7" />
+<img width="2998" height="1995" alt="image" src="https://github.com/user-attachments/assets/42b958e2-305c-4d97-a1e9-4183c1de6d9f" />
+
