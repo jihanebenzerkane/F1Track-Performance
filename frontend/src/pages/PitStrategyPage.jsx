@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react'
 import { getTeamColor, getFlag } from '../api/images'
 import { getCircuits, safeGetStandings, getDbPitStrategy } from '../api/f1api'
 
-const API_BASE = 'http://localhost:8081'
+/**
+ * PitStrategyPage: Historical pit stop analysis.
+ */
+const API_BASE = 'http://localhost:8085'
 
-/** Normalize Driver model or DriverStandingDTO for the pit-strategy dropdown. */
+
 function normalizePitDrivers(rows) {
   if (!Array.isArray(rows)) return []
   return rows.map(d => ({
@@ -46,12 +49,12 @@ export default function PitStrategyPage() {
         // Map race list to circuit list if coming from /races/season
         const mappedCircuits = Array.isArray(res)
           ? res
-              .filter(r => r.circuitSlug)
-              .map(r => ({
-                id: r.circuitSlug,           // string slug: "bahrain", "monaco", etc.
-                name: r.circuit,             // display name from DB
-                countryId: r.circuitSlug,    // used for flag lookup
-              }))
+            .filter(r => r.circuitSlug)
+            .map(r => ({
+              id: r.circuitSlug,           // string slug: "bahrain", "monaco", etc.
+              name: r.circuit,             // display name from DB
+              countryId: r.circuitSlug,    // used for flag lookup
+            }))
           : [];
 
         // Remove duplicates by slug

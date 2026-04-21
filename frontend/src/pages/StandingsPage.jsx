@@ -4,7 +4,6 @@ import { safeGetStandings, getLeaderInfo, safeGetConstructorStandings, getRacesB
 import { getFlag, getNatCode, getTeamColor, getConstructorImageUrl } from '../api/images'
 import DriverImage from '../components/DriverImage'
 
-// Reusable Components
 
 function PageTitle({ children }) {
   return (
@@ -80,6 +79,7 @@ export default function StandingsPage() {
   const urlSeason = parseInt(searchParams.get('season'))
   const [season, setSeason] = useState(!isNaN(urlSeason) ? urlSeason : 2026)
 
+  // Sync URL params with local state
   useEffect(() => {
     if (!isNaN(urlSeason) && urlSeason !== season) {
       setSeason(urlSeason)
@@ -94,17 +94,15 @@ export default function StandingsPage() {
   const [loading, setLoading] = useState(true)
   const [raceLoading, setRaceLoading] = useState(false)
 
-  // Race Results Tab state
+  // Race results state
   const [activeRaceId, setActiveRaceId] = useState(null)
   const [seasonRaces, setSeasonRaces] = useState([])
   const [targetRaceResults, setTargetRaceResults] = useState([])
 
-  // generate years from 1950 to 2026
   const years = []
   for (let y = 2026; y >= 1950; y--) years.push(y)
 
   useEffect(() => {
-    // Force prediction mode for 2026+
     if (season >= 2026) setMode('prediction')
     else if (mode === 'prediction' && season <= 2025) setMode('real')
   }, [season])
@@ -123,7 +121,6 @@ export default function StandingsPage() {
         setLeader(leaderData)
         setSeasonRaces(raceData)
 
-        // Auto-select the latest race if we just entered the tab or changed season
         if (raceData && raceData.length > 0) {
           const finishedRaces = raceData.filter(r => new Date(r.date) < new Date());
           const latest = finishedRaces.length > 0 ? finishedRaces[finishedRaces.length - 1] : raceData[0];
@@ -138,7 +135,6 @@ export default function StandingsPage() {
       })
   }, [season, mode])
 
-  // Fetch results when activeRaceId changes
   useEffect(() => {
     if (activeRaceId && tab === 'race_results') {
       setRaceLoading(true)
@@ -171,7 +167,6 @@ export default function StandingsPage() {
         <div style={{ display: 'flex', gap: '12px' }}>
 
 
-          {/* Season selector */}
           <select
             value={season}
             onChange={e => setSeason(parseInt(e.target.value))}
@@ -222,7 +217,6 @@ export default function StandingsPage() {
         </div>
       )}
 
-      {/* Tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <Tab label="Driver Standings" active={tab === 'drivers'} onClick={() => setTab('drivers')} />
         <Tab label="Constructor Standings" active={tab === 'constructors'} onClick={() => setTab('constructors')} />
@@ -230,7 +224,6 @@ export default function StandingsPage() {
         <Tab label="Awards & Insights" active={tab === 'awards'} onClick={() => setTab('awards')} />
       </div>
 
-      {/* Loading State */}
       {loading && (
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -324,6 +317,13 @@ export default function StandingsPage() {
                     width: '10px', height: '10px', borderRadius: '50%',
                     background: teamColor, flexShrink: 0,
                   }} />
+                  {getConstructorImageUrl(driver.team) && (
+                    <img
+                      src={getConstructorImageUrl(driver.team)}
+                      alt="car"
+                      style={{ height: '16px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}
+                    />
+                  )}
                   <span style={{
                     fontFamily: "'Formula1', sans-serif",
                     fontSize: '13px', color: '#f0f0f8', fontWeight: 700,
@@ -408,7 +408,7 @@ export default function StandingsPage() {
                     )}
                     <span style={{
                       fontFamily: "'Formula1', sans-serif",
-                      fontSize: '14px', fontWeight: 800, color: '#f0f0f8',
+                      fontSize: '14px', fontWeight: 700, color: '#f0f0f8',
                       textTransform: 'uppercase', letterSpacing: '0.05em'
                     }}>{c.name}</span>
                   </div>
@@ -530,7 +530,7 @@ export default function StandingsPage() {
               background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: '12px', padding: '24px', position: 'relative'
             }}>
-              
+
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#ffbb00ff', marginBottom: '8px' }}>{award.desc}</div>
               <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '13px', color: '#ff0000ff', textTransform: 'uppercase', letterSpacing: '1px' }}>{award.label}</div>
               <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '24px', fontWeight: 900, color: '#f0f0f8', marginTop: '4px' }}>

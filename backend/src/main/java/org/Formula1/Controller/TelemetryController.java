@@ -23,7 +23,6 @@ public class TelemetryController {
         return openF1Service.getSessions(year, sessionName);
     }
 
-    /** Recommended session_key for the year: first session OpenF1 returns a non-empty driver list for. */
     @GetMapping("/sessions/{year}/default-session-key")
     public Map<String, String> getDefaultSessionKey(@PathVariable int year) {
         String key = openF1Service.pickSessionKeyWithDriverRoster(year);
@@ -56,7 +55,7 @@ public class TelemetryController {
         return openF1Service.getPitStrategy(circuitKey, num);
     }
 
-    /** Pit strategy from local f1db.db (historical race_pit_stops per Grand Prix). */
+    // Pit strategy from local f1db.db (historical race_pit_stops per Grand Prix). 
     @GetMapping("/db/pit-strategy/{circuitId}")
     public Map<String, Object> getDbPitStrategy(
             @PathVariable String circuitId,
@@ -64,13 +63,13 @@ public class TelemetryController {
         return localTelemetryService.pitStrategy(circuitId, driverId);
     }
 
-    /** Races in a season, shaped like OpenF1 sessions (session_key = race id). */
+    // Races in a season 
     @GetMapping("/db/sessions/{year}")
     public List<Map<String, Object>> getDbSessions(@PathVariable int year) {
         return localTelemetryService.sessionsForYear(year);
     }
 
-    /** One point per round: total race time (when parseable) for lap chart. */
+    // One point per round 
     @GetMapping("/db/season/{year}/laps")
     public List<Map<String, Object>> getDbSeasonLaps(
             @PathVariable int year,

@@ -61,10 +61,6 @@ public class OpenF1Service {
         }
     }
 
-    /**
-     * First non-cancelled session (chronologically) whose OpenF1 driver roster is non-empty.
-     * Used so the UI does not default to a session that has no /drivers data.
-     */
     public String pickSessionKeyWithDriverRoster(int year) {
         String url = BASE_URL + "/sessions?year=" + year;
         List<Map<String, Object>> sessions = fetchList(url);
@@ -157,7 +153,7 @@ public class OpenF1Service {
             return emptyMap;
         }
 
-        // 3. Fetch stints for each race session and collect historical stops
+        // 3.collect historical stops
         List<Map<String, Object>> historicalStops = new java.util.ArrayList<>();
         Map<Integer, List<Integer>> stopLapMap = new java.util.HashMap<>();
 
@@ -174,14 +170,12 @@ public class OpenF1Service {
                 if (stints == null || stints.isEmpty())
                     continue;
 
-                // Each stint after the first represents a pit stop entry
+                // 
                 for (int i = 1; i < stints.size(); i++) {
                     Map<String, Object> stint = stints.get(i);
                     int stopNumber = i;
                     int lapStart = (Integer) stint.get("lap_start");
                     String compound = (String) stint.getOrDefault("compound", "UNKNOWN");
-
-                    // Collect for averaging
                     stopLapMap.computeIfAbsent(stopNumber, k -> new java.util.ArrayList<>()).add(lapStart);
 
                     // Add to historical display list
@@ -219,11 +213,7 @@ public class OpenF1Service {
         return finalResult;
     }
 
-    /**
-     * Drivers for a session. OpenF1 sometimes returns an empty {@code /drivers?session_key=…}
-     * (e.g. testing days or before rosters sync). We then try {@code meeting_key} and merge
-     * any {@code driver_number} seen in laps/stints so the grid list is as complete as possible.
-     */
+    // Drivers for a session.
     @Cacheable(value = "drivers", key = "#sessionKey", unless = "#result == null || #result.isEmpty()")
     public List<Map<String, Object>> getDrivers(String sessionKey) {
         if (sessionKey == null || sessionKey.isBlank()) {

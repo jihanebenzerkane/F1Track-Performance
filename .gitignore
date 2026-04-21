@@ -14,7 +14,7 @@ out/
 .classpath
 .settings/
 
-# Database files (CRITICAL)
+# Database files
 *.db
 *.sqlite
 *.sqlite3
@@ -56,16 +56,10 @@ scratch/
 **/Test*.java
 **/Debug*.java
 
-# Large files (shouldn't be in Git)
-*.glb
-*.gltf
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.mp4
+# Large files & Binaries (Allow models and images for the UI)
 *.zip
 *.tar.gz
+*.mp4
 
 # Temporary files
 *.tmp

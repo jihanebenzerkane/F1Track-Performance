@@ -19,7 +19,6 @@ public class StandingService {
     @Autowired
     private PredictionService predictionService;
 
-    @Cacheable(value = "driverStandings", key = "#year + #mode")
     public List<DriverStandingDTO> getDriverStandings(int year, String mode) {
         if ("prediction".equalsIgnoreCase(mode) || year >= 2026) {
             return predictionService.simulateSeasonDrivers(year);
@@ -27,7 +26,6 @@ public class StandingService {
         return standingsDAO.getDriverStandingsByYear(year);
     }
 
-    @Cacheable(value = "constructorStandings", key = "#year + #mode")
     public List<ConstructorStandingDTO> getConstructorStandings(int year, String mode) {
         if ("prediction".equalsIgnoreCase(mode) || year >= 2026) {
             return predictionService.simulateSeasonConstructors(year);
@@ -35,7 +33,6 @@ public class StandingService {
         return standingsDAO.getConstructorStandingsByYear(year);
     }
 
-    @Cacheable(value = "leaderInfo", key = "#year")
     public LeaderDTO getLeaderInfo(int year) {
         if (year >= 2026) {
             List<DriverStandingDTO> simulated = predictionService.simulateSeasonDrivers(year);

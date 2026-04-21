@@ -114,7 +114,6 @@ export default function CarInfoPanel({ selectedPart, teamId, teamColor, dbStats,
             </div>
           </div>
 
-          {/* Key number — the most impressive stat, BIG */}
           <div style={{
             padding: '28px 32px',
             borderBottom: '1px solid #0f0f0f',
@@ -207,7 +206,7 @@ export default function CarInfoPanel({ selectedPart, teamId, teamColor, dbStats,
             </p>
           </div>
 
-          {/* Did you know — BIG highlight */}
+          {/* Did you know */}
           <div style={{
             margin: '0',
             padding: '32px',

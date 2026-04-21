@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.Formula1.db.DataBaseManager;
 import java.sql.*;
-
 @SpringBootApplication
 @EnableCaching
 public class Main {

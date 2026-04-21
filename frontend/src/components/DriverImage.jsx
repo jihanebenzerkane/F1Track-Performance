@@ -13,13 +13,18 @@ export default function DriverImage({ driverId, driverNumber, size = 40 }) {
     setLoading(true)
 
     if (driverNumber) {
-      // FIXED: Call your backend instead of OpenF1 directly
-      fetch(`http://localhost:8081/api/telemetry/drivers?session_key=latest`)
+      
+      fetch(`http://localhost:8085/api/telemetry/drivers?session_key=latest`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data) && data.length > 0) {
-            // Find driver by number
-            const driver = data.find(d => String(d.driver_number) === String(driverNumber))
+            // Find driver by number AND verify name to prevent mismatches (e.g. Lando as #1 in test sessions)
+            const driver = data.find(d => {
+              const numMatch = String(d.driver_number) === String(driverNumber);
+              const lastName = (driverId || '').split('-').pop()?.toUpperCase();
+              const nameMatch = d.full_name?.toUpperCase().includes(lastName || 'EMPTY_NAME');
+              return numMatch && nameMatch;
+            })
             if (driver?.headshot_url) {
               setOpenF1Url(driver.headshot_url.replace('http:', 'https:'))
             }

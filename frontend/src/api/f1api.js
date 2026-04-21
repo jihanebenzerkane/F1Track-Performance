@@ -1,6 +1,9 @@
-const BASE = 'http://localhost:8081';
+const BASE = 'http://localhost:8085';
 
-// Safety Wrapper for Standings
+// Standings API Bridge
+// I used a Safety Wrapper here during development to handle cases where 
+// the backend might be down or returning unexpected empty lists. 
+// This prevents the UI from crashing during demo presentations!
 export async function safeGetStandings(season) {
   try {
     const res = await fetch(`${BASE}/api/standings/${season}`)

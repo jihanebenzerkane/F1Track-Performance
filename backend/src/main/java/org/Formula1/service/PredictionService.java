@@ -69,13 +69,10 @@ public class PredictionService {
         TableRenderer.render("WDC Prediction - " + targetYear, headers, rows);
     }
 
-    /**
-     * SIMULATION 2026: Monte Carlo logic for future seasons.
-     */
     public List<DriverStandingDTO> simulateSeasonDrivers(int year) {
         List<DriverStandingDTO> simulated = new ArrayList<>();
         
-        // Exact 2026 Official Grid & Standings (22 Drivers)
+        
         Object[][] grid = {
             {"kimi-antonelli", "Kimi Antonelli", "Mercedes", "12", "italy", 72, 1, 3},
             {"george-russell", "George Russell", "Mercedes", "63", "united-kingdom", 63, 1, 2},
@@ -113,25 +110,24 @@ public class PredictionService {
 
     public List<ConstructorStandingDTO> simulateSeasonConstructors(int year) {
         List<ConstructorStandingDTO> simulated = new ArrayList<>();
-        // Exact 2026 Official Constructors Standings (11 Teams)
         Object[][] teams = {
-            {"mercedes", "Mercedes", "germany", 135},
-            {"ferrari", "Ferrari", "italy", 90},
-            {"mclaren", "McLaren", "united-kingdom", 46},
-            {"haas", "Haas", "united-states-of-america", 18},
-            {"alpine", "Alpine", "france", 16},
-            {"red-bull", "Red Bull", "austria", 16},
-            {"rb", "Racing Bulls", "italy", 14},
-            {"williams", "Williams", "united-kingdom", 2},
-            {"audi", "Audi", "germany", 2},
-            {"cadillac", "Cadillac", "united-states-of-america", 0},
-            {"aston-martin", "Aston Martin", "united-kingdom", 0}
+            {"mercedes", "Mercedes", "germany", 135, List.of("Russell", "Antonelli")},
+            {"ferrari", "Ferrari", "italy", 90, List.of("Leclerc", "Hamilton")},
+            {"mclaren", "McLaren", "united-kingdom", 46, List.of("Norris", "Piastri")},
+            {"haas", "Haas", "united-states-of-america", 18, List.of("Bearman", "Ocon")},
+            {"alpine", "Alpine", "france", 16, List.of("Gasly", "Colapinto")},
+            {"red-bull", "Red Bull", "austria", 16, List.of("Verstappen", "Hadjar")},
+            {"rb", "Racing Bulls", "italy", 14, List.of("Lawson", "Lindblad")},
+            {"williams", "Williams", "united-kingdom", 2, List.of("Sainz Jr.", "Albon")},
+            {"audi", "Audi", "germany", 2, List.of("Bortoleto", "Hülkenberg")},
+            {"cadillac", "Cadillac", "united-states-of-america", 0, List.of("Bottas", "Perez")},
+            {"aston-martin", "Aston Martin", "united-kingdom", 0, List.of("Alonso", "Stroll")}
         };
 
         for (int i = 0; i < teams.length; i++) {
             simulated.add(new ConstructorStandingDTO(
                 (String) teams[i][0], (String) teams[i][1], (Integer) teams[i][3], 
-                (String) teams[i][2], i + 1, (Integer) teams[i][3] >= 60 ? 1 : 0, null
+                (String) teams[i][2], i + 1, (Integer) teams[i][3] >= 60 ? 1 : 0, (List<String>) teams[i][4]
             ));
         }
         return simulated;

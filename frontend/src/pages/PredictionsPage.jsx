@@ -1,251 +1,460 @@
 import { useState, useEffect } from 'react'
-import { getTeamColor, getFlag } from '../api/images'
+import { getFlag } from '../api/images'
 import { getCircuits, getRacePredictions, getRacesBySeason } from '../api/f1api'
 
 function formatDriverName(id) {
-  if (!id) return '—'
+  if (!id || typeof id !== 'string') return '—'
   return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 }
 
 export default function PredictionsPage() {
-  const season = 2026;
+  const season = 2026
   const [circuits, setCircuits] = useState([])
   const [races, setRaces] = useState([])
   const [circuitId, setCircuitId] = useState('')
+  const [selectedRace, setSelectedRace] = useState(null)
   const [predictions, setPredictions] = useState([])
   const [loading, setLoading] = useState(false)
-  const [listLoading, setListLoading] = useState(true)
   const [loaded, setLoaded] = useState(false)
+  const [logs, setLogs] = useState([])
 
   useEffect(() => {
-    setListLoading(true)
-    Promise.all([
-      getCircuits(),
-      getRacesBySeason(season)
-    ]).then(([circuitsData, racesData]) => {
-      setCircuits(circuitsData)
-      
-      const now = new Date()
-      const futureRaces = (racesData || []).filter(race => new Date(race.raceDate) > now)
-      setRaces(futureRaces)
-
-      if (futureRaces && futureRaces.length > 0) {
-        const firstRace = futureRaces[0];
-        const c = circuitsData.find(c => c.name === firstRace.circuit || c.id === firstRace.circuit) || {};
-        setCircuitId(c.id || firstRace.circuit);
-      } else if (circuitsData.length > 0) {
-        setCircuitId(circuitsData[0].id)
-      }
-      setListLoading(false)
-    }).catch(() => setListLoading(false))
+    Promise.all([getCircuits(), getRacesBySeason(season)])
+      .then(([circuitsData, racesData]) => {
+        setCircuits(circuitsData || [])
+        const now = new Date()
+        const futureRaces = (racesData || []).filter(r => new Date(r.raceDate) > now)
+        setRaces(futureRaces)
+        if (futureRaces.length > 0) {
+          const first = futureRaces[0]
+          const c = (circuitsData || []).find(c => c.name === first.circuit || c.id === first.circuit) || {}
+          setCircuitId(c.id || first.circuit)
+          setSelectedRace(first)
+        }
+      })
+      .catch(() => {})
   }, [season])
+
+  const runSimulationLogs = () => {
+    const messages = [
+      "Loading historical race results...",
+      "Calculating driver win rates per circuit...",
+      "Weighting recent championship standings...",
+      "Applying circuit-specific performance history...",
+      "Running 50,000 Monte Carlo iterations...",
+      "Aggregating probability distributions...",
+      "Finalizing prediction scores..."
+    ]
+    setLogs([])
+    let i = 0
+    const interval = setInterval(() => {
+      if (i < messages.length) {
+        setLogs(prev => [...prev, messages[i]])
+        i++
+      } else {
+        clearInterval(interval)
+      }
+    }, 280)
+    return messages.length * 280 + 100
+  }
 
   const loadPredictions = () => {
     if (!circuitId) return
     setLoading(true)
     setLoaded(false)
+    setPredictions([])
+    const logTime = runSimulationLogs()
     getRacePredictions(circuitId)
-      .then(data => { 
-        setPredictions(data)
-        setLoading(false)
-        setLoaded(true) 
+      .then(data => {
+        setTimeout(() => {
+          setPredictions(Array.isArray(data) ? data : [])
+          setLoading(false)
+          setLoaded(true)
+        }, logTime)
       })
-      .catch(() => setLoading(false))
+      .catch(() => {
+        setLoading(false)
+        setLoaded(true)
+        setPredictions([])
+      })
   }
 
-  const selected = circuits.find(c => c.id === circuitId)
+  const avgScore = predictions.length > 0
+    ? (predictions.reduce((sum, p) => sum + p.predictionScore, 0) / predictions.length).toFixed(1)
+    : null
+  const spread = predictions.length > 0
+    ? (predictions[0].predictionScore - predictions[predictions.length - 1].predictionScore).toFixed(1)
+    : null
 
   return (
-    <div>
-      <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-        <h1 style={{ 
-          fontFamily: "'Formula1', sans-serif", 
-          fontSize: '32px', 
-          fontWeight: 900, 
-          textTransform: 'uppercase', 
-          marginBottom: '8px',
-          letterSpacing: '2px'
+    <div style={{ padding: '32px 40px', minHeight: '100vh' }}>
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
+
+      {/* Page Header */}
+      <div style={{ marginBottom: '32px', borderLeft: '4px solid #E4002B', paddingLeft: '20px' }}>
+        <h1 style={{
+          fontFamily: "'Formula1', sans-serif", fontSize: '28px', fontWeight: 900,
+          textTransform: 'uppercase', letterSpacing: '2px', margin: 0, color: '#fff'
         }}>
           Race <span style={{ color: '#E4002B' }}>Predictions</span>
         </h1>
-        <p style={{ 
-          color: '#8591a3', 
-          fontSize: '14px',
-          fontFamily: "'JetBrains Mono', monospace",
-          letterSpacing: '1px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px'
+        <p style={{
+          color: '#8591a3', fontFamily: "'Inter', sans-serif",
+          fontSize: '11px', marginTop: '6px', lineHeight: 1.7, maxWidth: '600px'
         }}>
-          Monte Carlo simulation algorithm calculating win probability
-          <span style={{
-            background: 'rgba(228, 0, 43, 0.08)',
-            border: '1px solid rgba(228, 0, 43, 0.3)',
-            borderRadius: '4px',
-            color: '#E4002B',
-            fontSize: '9px',
-            padding: '2px 8px',
-            fontWeight: 700,
-            letterSpacing: '1px'
-          }}>2026 REGULATION ACTIVE</span>
+          Monte Carlo simulation models a spectrum of potential race outcomes across 50,000 iterations 
+          giving a probabilistic view of what might happen, how likely it is, and the range of realistic scenarios.
         </p>
       </div>
 
-      {/* Circuit Selector */}
-      <div style={{ 
-        background: '#0a0a0a', 
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)', 
-        borderRadius: '16px', 
-        padding: '32px', 
-        marginBottom: '32px' 
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '11px', letterSpacing: '2px', color: '#E4002B', textTransform: 'uppercase' }}>
-            Upcoming 2026 Races
+      {/* Main Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start' }}>
+
+        {/* Left */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+          {/* Circuit Selector */}
+          <div style={{
+            background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: '12px', overflow: 'hidden'
+          }}>
+            <div style={{
+              padding: '12px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+              fontFamily: "'Formula1', sans-serif", fontSize: '10px',
+              color: '#8591a3', textTransform: 'uppercase', letterSpacing: '2px'
+            }}>
+              Upcoming Races — {season}
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+              gap: '1px', background: 'rgba(255,255,255,0.04)'
+            }}>
+              {races.slice(0, 8).map(race => {
+                const c = circuits.find(c => c.name === race.circuit || c.id === race.circuit) || {}
+                const activeId = c.id || race.circuit
+                const active = circuitId === activeId
+                return (
+                  <div
+                    key={race.id}
+                    onClick={() => { setCircuitId(activeId); setSelectedRace(race); setLoaded(false); setPredictions([]) }}
+                    style={{
+                      background: active ? 'rgba(228,0,43,0.08)' : '#0d0d0d',
+                      padding: '16px', cursor: 'pointer',
+                      borderLeft: active ? '3px solid #E4002B' : '3px solid transparent',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    <div style={{ fontSize: '20px', marginBottom: '8px' }}>
+                      {getFlag(c.countryId || race.country || race.circuit)}
+                    </div>
+                    <div style={{
+                      fontFamily: "'Formula1', sans-serif", fontSize: '10px',
+                      color: active ? '#fff' : '#8591a3',
+                      fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px'
+                    }}>
+                      {race.grandPrix}
+                    </div>
+                    <div style={{
+                      fontFamily: "'Space Mono', monospace", fontSize: '9px',
+                      color: active ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.2)'
+                    }}>
+                      {race.raceDate
+                        ? new Date(race.raceDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                        : '—'}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
-          {races.map(race => {
-            const c = circuits.find(circuit => circuit.name === race.circuit || circuit.id === race.circuit) || {};
-            const activeId = c.id || race.circuit;
-            const dateStr = new Date(race.raceDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            return (
+
+          {/* Run button — idle state */}
+          {!loading && !loaded && (
+            <div style={{
+              background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '12px', padding: '40px', textAlign: 'center'
+            }}>
+              <div style={{
+                fontFamily: "'Space Mono', monospace", fontSize: '12px',
+                color: '#8591a3', marginBottom: '24px'
+              }}>
+                {selectedRace ? `Ready to simulate: ${selectedRace.grandPrix}` : 'Select a race above'}
+              </div>
               <button
-                key={race.id}
-                onClick={() => setCircuitId(activeId)}
+                onClick={loadPredictions}
+                disabled={!circuitId}
                 style={{
-                  padding: '8px 16px', borderRadius: '8px', cursor: 'pointer',
-                  fontFamily: "'Formula1', sans-serif", fontSize: '11px', fontWeight: 700,
-                  border: `1px solid ${circuitId === activeId ? 'rgba(228,0,43,0.6)' : 'rgba(255,255,255,0.07)'}`,
-                  background: circuitId === activeId ? 'rgba(228,0,43,0.12)' : '#141414',
-                  color: circuitId === activeId ? '#fff' : '#8591a3',
-                  transition: 'all 0.2s',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'
+                  padding: '12px 36px', background: circuitId ? '#E4002B' : 'rgba(255,255,255,0.05)',
+                  border: 'none', borderRadius: '8px', color: circuitId ? '#fff' : '#8591a3',
+                  fontFamily: "'Formula1', sans-serif", fontSize: '11px',
+                  fontWeight: 700, letterSpacing: '1px', cursor: circuitId ? 'pointer' : 'default',
+                  transition: 'all 0.2s'
                 }}
               >
-                <div>{getFlag(c.countryId)} {race.grandPrix}</div>
-                <div style={{ fontSize: '9px', fontWeight: 400, color: circuitId === activeId ? '#E4002B' : '#555866' }}>
-                  {dateStr}
-                </div>
+                Run Prediction
               </button>
-            );
-          })}
-        </div>
-        <button
-          onClick={loadPredictions}
-          disabled={loading || !circuitId}
-          style={{
-            padding: '12px 28px', background: '#E4002B', border: 'none', borderRadius: '8px',
-            color: '#fff', fontWeight: 700, fontSize: '14px',
-            fontFamily: "'Formula1', sans-serif", cursor: 'pointer',
-            boxShadow: '0 4px 20px rgba(228, 0, 43, 0.3)',
-            opacity: (loading || !circuitId) ? 0.7 : 1,
-            textTransform: 'uppercase'
-          }}
-        >
-          {loading ? 'Processing...' : `Predict ${selected?.name || ''} Winner`}
-        </button>
-      </div>
-
-      {/* Results */}
-      {loaded && predictions.length > 0 && (
-        <div>
-          <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '11px', letterSpacing: '2px', color: '#8591a3', textTransform: 'uppercase', marginBottom: '16px' }}>
-            Prediction Results — {getFlag(selected?.countryId)} {selected?.name}
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }}>
-            {predictions?.slice(0, 3).map((p, i) => {
-              const medalsColor = ['#E4002B', '#C0C0C0', '#CD7F32']
-              const teamColor = getTeamColor(p.team)
-              return (
-                <div key={p.driver || i} style={{
-                  background: '#0a0a0a', 
-                  backdropFilter: 'blur(24px)',
-                  border: `1px solid ${i === 0 ? 'rgba(228, 0, 43, 0.4)' : 'rgba(255, 255, 255, 0.1)'}`,
-                  borderRadius: '16px', 
-                  padding: '32px', 
-                  textAlign: 'center',
-                  boxShadow: i === 0 ? '0 0 50px rgba(228, 0, 43, 0.12)' : 'none',
-                  opacity: 0,
-                  transform: 'translateY(20px)',
-                  animation: 'fadeUp 0.5s ease forwards',
-                  animationDelay: `${i * 0.15}s`
-                }}>
-                  <div style={{ fontSize: '36px', marginBottom: '8px', fontFamily: "'Formula1', sans-serif", fontWeight: 900, color: medalsColor[i] }}>{i + 1}</div>
-                  <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '15px', fontWeight: 700, marginBottom: '4px' }}>{formatDriverName(p.driver)}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '16px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: teamColor }} />
-                    <span style={{ fontSize: '12px', color: '#8591a3' }}>{p.team}</span>
-                  </div>
-                  <div style={{ fontSize: '28px', fontWeight: 900, color: medalsColor[i], fontFamily: "'JetBrains Mono', monospace" }}>
-                    {p.predictionScore}%
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#8591a3', marginTop: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Win Probability</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '16px' }}>
-                    <div style={{ background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', padding: '10px', textAlign: 'center', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <div style={{ fontSize: '14px', fontWeight: 700, color: '#E4002B', fontFamily: "'JetBrains Mono', monospace" }}>{p.circuitWinRate}</div>
-                      <div style={{ fontSize: '9px', color: '#8591a3', textTransform: 'uppercase', letterSpacing: '1px' }}>History</div>
-                    </div>
-                    <div style={{ background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', padding: '10px', textAlign: 'center', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <div style={{ fontSize: '14px', fontWeight: 700, color: '#fff', fontFamily: "'JetBrains Mono', monospace" }}>{p.recentFormScore}</div>
-                      <div style={{ fontSize: '9px', color: '#8591a3', textTransform: 'uppercase' }}>Recent Form</div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Full table */}
-          <div style={{ 
-            background: '#0a0a0a', 
-            backdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)', 
-            borderRadius: '16px', 
-            overflow: 'hidden' 
-          }}>
-            <div style={{ 
-              display: 'grid', gridTemplateColumns: '60px 2fr 1.5fr 120px 120px 100px', 
-              padding: '16px 24px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', 
-              color: '#8591a3', fontSize: '10px', letterSpacing: '2px', 
-              textTransform: 'uppercase', fontFamily: "'Formula1', sans-serif" 
-            }}>
-              <div>Rank</div><div>Driver</div><div>Team</div><div>Circuit Rate</div><div>Recent Form</div><div style={{ textAlign: 'right' }}>Score</div>
             </div>
-            {predictions?.map((p, i) => {
-              const teamColor = getTeamColor(p.team)
-              return (
-                <div key={p.driver || i} style={{
-                  display: 'grid', gridTemplateColumns: '60px 2fr 1.5fr 120px 120px 100px',
-                  padding: '16px 24px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                  alignItems: 'center', background: 'transparent',
-                  transition: 'background 0.15s',
-                  opacity: 0,
-                  transform: 'translateY(10px)',
-                  animation: 'fadeUp 0.4s ease forwards',
-                  animationDelay: `${0.5 + i * 0.05}s`
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: i < 3 ? '#E4002B' : '#8591a3' }}>{p.rank}</div>
-                  <div style={{ fontWeight: 700, fontSize: '14px' }}>{formatDriverName(p.driver)}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: teamColor }} />
-                    <span style={{ fontSize: '13px', color: '#c0c8d8' }}>{p.team}</span>
+          )}
+
+          {/* Simulation log */}
+          {loading && (
+            <div style={{
+              background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '12px', overflow: 'hidden'
+            }}>
+              <div style={{
+                padding: '12px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+                display: 'flex', alignItems: 'center', gap: '10px'
+              }}>
+                <div style={{
+                  width: 10, height: 10, borderRadius: '50%',
+                  border: '2px solid rgba(255,255,255,0.1)',
+                  borderTopColor: '#E4002B',
+                  animation: 'spin 0.8s linear infinite', flexShrink: 0
+                }} />
+                <span style={{
+                  fontFamily: "'Space Mono', monospace", fontSize: '10px', color: '#8591a3'
+                }}>
+                  Running simulation...
+                </span>
+              </div>
+              <div style={{ padding: '20px', minHeight: '180px' }}>
+                {logs.map((log, idx) => (
+                  <div key={idx} style={{
+                    fontFamily: "'Space Mono', monospace", fontSize: '11px',
+                    color: idx === logs.length - 1 ? '#fff' : '#8591a3',
+                    marginBottom: '8px',
+                    animation: 'fadeIn 0.2s ease forwards'
+                  }}>
+                    {log || ''}
                   </div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", color: '#E4002B', fontSize: '13px' }}>{p.circuitWinRate}</div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", color: '#a3a3a3', fontSize: '13px' }}>{p.recentFormScore}</div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, textAlign: 'right', color: i === 0 ? '#E4002B' : '#f4f5f8' }}>{p.predictionScore}%</div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Results */}
+          {loaded && predictions.length > 0 && (
+            <div style={{ animation: 'fadeIn 0.4s ease', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+              {/* Re-run */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{
+                  fontFamily: "'Formula1', sans-serif", fontSize: '10px',
+                  color: '#8591a3', textTransform: 'uppercase', letterSpacing: '2px'
+                }}>
+                  Results — {selectedRace?.grandPrix}
+                </span>
+                <button
+                  onClick={() => { setLoaded(false); setPredictions([]); loadPredictions() }}
+                  style={{
+                    padding: '7px 16px', background: 'transparent',
+                    border: '1px solid rgba(228,0,43,0.4)', borderRadius: '6px',
+                    color: '#E4002B', fontFamily: "'Space Mono', monospace",
+                    fontSize: '10px', cursor: 'pointer'
+                  }}
+                >
+                  ↺ Re-run
+                </button>
+              </div>
+
+              {/* Top 3 */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                {predictions.slice(0, 3).map((p, i) => (
+                  <div key={i} style={{
+                    background: '#0d0d0d',
+                    border: `1px solid ${i === 0 ? '#E4002B' : 'rgba(255,255,255,0.07)'}`,
+                    borderRadius: '12px', padding: '20px', textAlign: 'center'
+                  }}>
+                    <div style={{
+                      fontFamily: "'Space Mono', monospace", fontSize: '9px',
+                      color: '#8591a3', marginBottom: '10px', textTransform: 'uppercase'
+                    }}>
+                      P{i + 1}
+                    </div>
+                    <div style={{
+                      fontFamily: "'Formula1', sans-serif", fontSize: '15px',
+                      fontWeight: 900, color: '#fff', marginBottom: '8px'
+                    }}>
+                      {formatDriverName(p.driver)}
+                    </div>
+                    <div style={{
+                      fontFamily: "'Space Mono', monospace", fontSize: '22px',
+                      fontWeight: 700, color: i === 0 ? '#E4002B' : '#fff'
+                    }}>
+                      {p.predictionScore}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* P4–P8 table */}
+              <div style={{
+                background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: '12px', overflow: 'hidden'
+              }}>
+                <div style={{
+                  display: 'grid', gridTemplateColumns: '40px 1fr 80px',
+                  padding: '10px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+                  fontFamily: "'Space Mono', monospace", fontSize: '9px',
+                  color: '#8591a3', textTransform: 'uppercase'
+                }}>
+                  <span>Pos</span><span>Driver</span><span style={{ textAlign: 'right' }}>Score</span>
                 </div>
-              )
-            })}
-          </div>
+                {predictions.slice(3, 10).map((p, i) => (
+                  <div key={i} style={{
+                    display: 'grid', gridTemplateColumns: '40px 1fr 80px',
+                    padding: '13px 20px',
+                    borderBottom: i < 6 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                    alignItems: 'center'
+                  }}>
+                    <span style={{
+                      fontFamily: "'Space Mono', monospace", fontSize: '11px', color: '#8591a3'
+                    }}>
+                      {p.rank}
+                    </span>
+                    <span style={{
+                      fontFamily: "'Formula1', sans-serif", fontSize: '12px', color: '#fff'
+                    }}>
+                      {formatDriverName(p.driver)}
+                    </span>
+                    <span style={{
+                      fontFamily: "'Space Mono', monospace", fontSize: '12px',
+                      color: '#E4002B', textAlign: 'right'
+                    }}>
+                      {p.predictionScore}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {loaded && predictions.length === 0 && (
+            <div style={{
+              background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '12px', padding: '40px', textAlign: 'center',
+              fontFamily: "'Space Mono', monospace", fontSize: '12px', color: '#8591a3'
+            }}>
+              No prediction data for this circuit.
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Right sidebar */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+          {/* Simulation info */}
+          <div style={{
+            background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: '12px', overflow: 'hidden'
+          }}>
+            <div style={{
+              padding: '12px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+              fontFamily: "'Formula1', sans-serif", fontSize: '10px',
+              color: '#8591a3', textTransform: 'uppercase', letterSpacing: '2px'
+            }}>
+              How it works
+            </div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {[
+                { label: 'Method', value: 'Monte Carlo Simulation' },
+                { label: 'Iterations', value: '50,000' },
+                { label: 'Inputs', value: 'Historical results, driver standings, circuit performance' },
+              ].map(item => (
+                <div key={item.label}>
+                  <div style={{
+                    fontFamily: "'Space Mono', monospace", fontSize: '9px',
+                    color: '#8591a3', textTransform: 'uppercase', marginBottom: '4px'
+                  }}>
+                    {item.label}
+                  </div>
+                  <div style={{
+                    fontFamily: "'Space Mono', monospace", fontSize: '12px', color: '#fff'
+                  }}>
+                    {item.value}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Live stats — only after prediction loads */}
+          {loaded && predictions.length > 0 && (
+            <div style={{
+              background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '12px', overflow: 'hidden',
+              animation: 'fadeIn 0.4s ease'
+            }}>
+              <div style={{
+                padding: '12px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+                fontFamily: "'Formula1', sans-serif", fontSize: '10px',
+                color: '#8591a3', textTransform: 'uppercase', letterSpacing: '2px'
+              }}>
+                Simulation Output
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: 'rgba(255,255,255,0.04)' }}>
+                {[
+                  { label: 'Iterations', value: '50,000' },
+                  { label: 'Drivers', value: predictions.length },
+                  { label: 'Avg Score', value: `${avgScore}%` },
+                  { label: 'Spread', value: `${spread}%` },
+                ].map(stat => (
+                  <div key={stat.label} style={{ background: '#0d0d0d', padding: '16px' }}>
+                    <div style={{
+                      fontFamily: "'Space Mono', monospace", fontSize: '18px',
+                      fontWeight: 700, color: '#fff', lineHeight: 1
+                    }}>
+                      {stat.value}
+                    </div>
+                    <div style={{
+                      fontFamily: "'Space Mono', monospace", fontSize: '9px',
+                      color: '#8591a3', marginTop: '6px', textTransform: 'uppercase'
+                    }}>
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Selected race info */}
+          {selectedRace && (
+            <div style={{
+              background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '12px', padding: '20px'
+            }}>
+              <div style={{
+                fontFamily: "'Formula1', sans-serif", fontSize: '10px',
+                color: '#8591a3', textTransform: 'uppercase',
+                letterSpacing: '2px', marginBottom: '14px'
+              }}>
+                Selected Race
+              </div>
+              <div style={{
+                fontFamily: "'Formula1', sans-serif", fontSize: '16px',
+                fontWeight: 900, color: '#fff', marginBottom: '8px'
+              }}>
+                {selectedRace.grandPrix}
+              </div>
+              <div style={{
+                fontFamily: "'Space Mono', monospace", fontSize: '11px', color: '#8591a3'
+              }}>
+                {selectedRace.raceDate
+                  ? new Date(selectedRace.raceDate).toLocaleDateString('en-GB', {
+                      weekday: 'short', day: 'numeric', month: 'long', year: 'numeric'
+                    })
+                  : '—'}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

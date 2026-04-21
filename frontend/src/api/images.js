@@ -88,18 +88,18 @@ export const getConstructorImageUrl = (team) => {
   if (!team) return null;
   const key = team.toLowerCase().replace(/\s+/g, '-');
   const images = {
-    'red-bull': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/red-bull-racing.png',
-    'ferrari': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/ferrari.png',
-    'mclaren': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/mclaren.png',
-    'mercedes': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/mercedes.png',
-    'aston-martin': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/aston-martin.png',
-    'alpine': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/alpine.png',
-    'williams': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/williams.png',
-    'racing-bulls': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/rb.png',
-    'rb': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/rb.png',
-    'haas': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/haas.png',
-    'audi': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/kick-sauber.png',
-    'kick-sauber': 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/kick-sauber.png',
+    'red-bull': 'https://www.formula1.com/content/dam/fom-website/teams/2024/red-bull-racing.png',
+    'ferrari': 'https://www.formula1.com/content/dam/fom-website/teams/2024/ferrari.png',
+    'mclaren': 'https://www.formula1.com/content/dam/fom-website/teams/2024/mclaren.png',
+    'mercedes': 'https://www.formula1.com/content/dam/fom-website/teams/2024/mercedes.png',
+    'aston-martin': 'https://www.formula1.com/content/dam/fom-website/teams/2024/aston-martin.png',
+    'alpine': 'https://www.formula1.com/content/dam/fom-website/teams/2024/alpine.png',
+    'williams': 'https://www.formula1.com/content/dam/fom-website/teams/2024/williams.png',
+    'racing-bulls': 'https://www.formula1.com/content/dam/fom-website/teams/2024/rb.png',
+    'rb': 'https://www.formula1.com/content/dam/fom-website/teams/2024/rb.png',
+    'haas': 'https://www.formula1.com/content/dam/fom-website/teams/2024/haas.png',
+    'audi': 'https://www.formula1.com/content/dam/fom-website/teams/2024/kick-sauber.png',
+    'kick-sauber': 'https://www.formula1.com/content/dam/fom-website/teams/2024/kick-sauber.png',
   };
   return images[key] || null;
 }

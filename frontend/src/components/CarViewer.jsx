@@ -57,12 +57,11 @@ export default function CarViewer({ modelPath, teamColor, onPartClick, selectedP
     mount.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // LIGHTING — much brighter, 3-point setup
-    // Ambient — base fill
+    // Ambient
     const ambient = new THREE.AmbientLight(0xffffff, 2.0);
     scene.add(ambient);
 
-    // Key light — main light from upper front
+    // Key light
     const keyLight = new THREE.DirectionalLight(0xffffff, 6.0);
     keyLight.position.set(6, 8, 6);
     keyLightRef.current = keyLight;
@@ -77,17 +76,17 @@ export default function CarViewer({ modelPath, teamColor, onPartClick, selectedP
     keyLight.shadow.camera.bottom = -10;
     scene.add(keyLight);
 
-    // Fill light — opposite side, softer
+    // Fill light 
     const fillLight = new THREE.DirectionalLight(0xffffff, 3.5);
     fillLight.position.set(-6, 4, -4);
     scene.add(fillLight);
 
-    // Rim light — from behind, creates edge definition
+    // Rim light
     const rimLight = new THREE.DirectionalLight(0xffffff, 2.5);
     rimLight.position.set(0, 3, -8);
     scene.add(rimLight);
 
-    // Under light — illuminates underfloor
+    // Under light
     const underLight = new THREE.DirectionalLight(0xffffff, 2.0);
     underLight.position.set(0, -4, 0);
     scene.add(underLight);

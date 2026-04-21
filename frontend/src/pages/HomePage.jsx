@@ -70,6 +70,8 @@ export default function HomePage() {
   const statsRef = useRef(null);
   const [counted, setCounted] = useState(false);
   const [counts, setCounts] = useState({ teams: 0, races: 0, years: 0 });
+  // I built this Data Ticker to mimic the real F1 broadcast experience.
+  // It fetches the latest championship stats dynamically from our backend!
   const [tickerData, setTickerData] = useState([]);
   const [dbStats, setDbStats] = useState({ drivers: 915, races: 1171, years: 76 });
   const targets = { teams: 20, races: 24, years: 76 };
@@ -86,7 +88,7 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    fetch('http://localhost:8081/api/leader/2025')
+    fetch('http://localhost:8085/api/leader/2025')
       .then(r => r.json())
       .then(data => {
         setDbStats(prev => ({ ...prev, totalRaces2025: data.totalRaces }));
@@ -95,11 +97,11 @@ export default function HomePage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('http://localhost:8081/api/leader/2025').then(r => r.json()),
+      fetch('http://localhost:8085/api/leader/2025').then(r => r.json()),
       safeGetStandings(2025),
       safeGetConstructorStandings(2025),
-      fetch('http://localhost:8081/api/races').then(r => r.json()),
-      fetch('http://localhost:8081/api/drivers').then(r => r.json()),
+      fetch('http://localhost:8085/api/races').then(r => r.json()),
+      fetch('http://localhost:8085/api/drivers').then(r => r.json()),
     ]).then(([leader, drivers, constructors, races, allDrivers]) => {
       const today = new Date().toISOString().split('T')[0];
       const sortedRaces = [...(races || [])].sort((a, b) => (a.raceDate || '').localeCompare(b.raceDate || ''));
@@ -153,8 +155,7 @@ export default function HomePage() {
     <div style={{
       position: 'relative',
       width: '100%',
-      // Allow rich scrolling
-      height: '300vh',
+      height: '100%',
       backgroundColor: '#08080a',
       backgroundImage: `
         linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
@@ -205,7 +206,7 @@ export default function HomePage() {
         inset: 0,
         zIndex: 1,
         pointerEvents: 'none',
-        background: 'linear-gradient(180deg, rgba(10,10,14, 0.5) 0%, transparent 20%, transparent 70%, rgba(10,10,14, 0.9) 100%)'
+        background: 'linear-gradient(180deg, rgba(59, 12, 12, 0.5) 0%, transparent 20%, transparent 70%, rgba(10,10,14, 0.9) 100%)'
       }} />
 
       {/* Scrollable Content Layer */}
@@ -487,157 +488,7 @@ export default function HomePage() {
         </div>
 
           {/* Auto-scrolling circuit carousel */}
-<section style={{ padding: '10px 0', overflow: 'hidden' }}>
 
-  <div style={{ padding: '0 40px', marginBottom: '32px' }}>
-    <span style={{
-      fontFamily: 'var(--font)',
-      fontSize: '11px',
-      fontWeight: 900,
-      color: '#E4002B',
-      letterSpacing: '3px',
-      textTransform: 'uppercase',
-      borderLeft: '2px solid #E4002B',
-      paddingLeft: '12px'
-    }}>2025 CALENDAR</span>
-  </div>
-
-  {/* Fade edges */}
-  <div style={{ position: 'relative' }}>
-    <div style={{
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      bottom: 0,
-      width: '120px',
-      background: 'linear-gradient(90deg, #050505, transparent)',
-      zIndex: 2,
-      pointerEvents: 'none'
-    }} />
-    <div style={{
-      position: 'absolute',
-      right: 0,
-      top: 0,
-      bottom: 0,
-      width: '120px',
-      background: 'linear-gradient(270deg, #050505, transparent)',
-      zIndex: 2,
-      pointerEvents: 'none'
-    }} />
-
-    <div style={{ overflow: 'hidden', width: '100%' }}></div>
-    <div style={{
-      display: 'flex',
-      gap: '12px',
-      width: 'max-content',
-      animation: 'carouselScroll 80s linear infinite',
-    }}>
-      {/* Duplicate the array for seamless loop */}
-      {[...Array(2)].flatMap(() => [
-        { round: 'R01', name: 'BAHRAIN', country: 'BHR', laps: 57, type: 'PERMANENT' },
-        { round: 'R02', name: 'JEDDAH', country: 'KSA', laps: 50, type: 'STREET' },
-        { round: 'R03', name: 'MELBOURNE', country: 'AUS', laps: 58, type: 'STREET' },
-        { round: 'R04', name: 'SUZUKA', country: 'JPN', laps: 53, type: 'PERMANENT' },
-        { round: 'R05', name: 'SHANGHAI', country: 'CHN', laps: 56, type: 'PERMANENT' },
-        { round: 'R06', name: 'MIAMI', country: 'USA', laps: 57, type: 'STREET' },
-        { round: 'R07', name: 'IMOLA', country: 'ITA', laps: 63, type: 'PERMANENT' },
-        { round: 'R08', name: 'MONACO', country: 'MON', laps: 78, type: 'STREET' },
-        { round: 'R09', name: 'MONTREAL', country: 'CAN', laps: 70, type: 'STREET' },
-        { round: 'R10', name: 'BARCELONA', country: 'ESP', laps: 66, type: 'PERMANENT' },
-        { round: 'R11', name: 'SPIELBERG', country: 'AUT', laps: 71, type: 'PERMANENT' },
-        { round: 'R12', name: 'SILVERSTONE', country: 'GBR', laps: 52, type: 'PERMANENT' },
-        { round: 'R13', name: 'BUDAPEST', country: 'HUN', laps: 70, type: 'PERMANENT' },
-        { round: 'R14', name: 'SPA', country: 'BEL', laps: 44, type: 'PERMANENT' },
-        { round: 'R15', name: 'ZANDVOORT', country: 'NLD', laps: 72, type: 'PERMANENT' },
-        { round: 'R16', name: 'MONZA', country: 'ITA', laps: 53, type: 'PERMANENT' },
-        { round: 'R17', name: 'BAKU', country: 'AZE', laps: 51, type: 'STREET' },
-        { round: 'R18', name: 'SINGAPORE', country: 'SGP', laps: 62, type: 'STREET' },
-        { round: 'R19', name: 'AUSTIN', country: 'USA', laps: 56, type: 'PERMANENT' },
-        { round: 'R20', name: 'MEXICO CITY', country: 'MEX', laps: 71, type: 'PERMANENT' },
-        { round: 'R21', name: 'SAO PAULO', country: 'BRA', laps: 71, type: 'PERMANENT' },
-        { round: 'R22', name: 'LAS VEGAS', country: 'USA', laps: 50, type: 'STREET' },
-        { round: 'R23', name: 'LUSAIL', country: 'QAT', laps: 57, type: 'PERMANENT' },
-        { round: 'R24', name: 'ABU DHABI', country: 'UAE', laps: 58, type: 'PERMANENT' },
-      ]).map((circuit, i) => (
-        <a key={i} href="/circuit" style={{ textDecoration: 'none', flexShrink: 0 }}>
-          <div
-            style={{
-              background: '#0a0a0ada',
-              border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: '12px',
-              padding: '20px 24px',
-              width: '190px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px',
-              transition: 'border-color 0.2s, transform 0.2s',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'rgba(228,0,43,0.5)'
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.parentElement.parentElement.style.animationPlayState = 'paused'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.parentElement.parentElement.style.animationPlayState = 'running'
-            }}
-          >
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <span style={{
-                fontFamily: 'var(--mono)',
-                fontSize: '10px',
-                color: '#E4002B',
-                letterSpacing: '2px'
-              }}>{circuit.round}</span>
-              <span style={{
-                fontFamily: 'var(--mono)',
-                fontSize: '9px',
-                color: circuit.type === 'STREET' ? '#D4AF37' : '#4b5563',
-                letterSpacing: '1px',
-                padding: '2px 6px',
-                border: `1px solid ${circuit.type === 'STREET' ? 'rgba(212,175,55,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                borderRadius: '4px'
-              }}>{circuit.type}</span>
-            </div>
-
-            <div style={{
-              fontFamily: 'var(--font)',
-              fontSize: '15px',
-              fontWeight: 900,
-              color: '#fff',
-              letterSpacing: '1px',
-              lineHeight: 1.1
-            }}>{circuit.name}</div>
-
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: '4px'
-            }}>
-              <span style={{
-                fontFamily: 'var(--mono)',
-                fontSize: '10px',
-                color: '#4b5563',
-                letterSpacing: '1px'
-              }}>{circuit.country}</span>
-              <span style={{
-                fontFamily: 'var(--mono)',
-                fontSize: '10px',
-                color: '#4b5563'
-              }}>{circuit.laps} laps</span>
-            </div>
-          </div>
-        </a>
-      ))}
-    </div>
-  </div>
-</section>
 
 {/* DRIVER SPOTLIGHT */}
 <section style={{ padding: '80px 40px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -827,6 +678,169 @@ export default function HomePage() {
   </div>
 </section>
 
+<section style={{ padding: '10px 0', overflow: 'hidden' }}>
+
+  <div style={{ padding: '0 40px', marginBottom: '32px' }}>
+    <span style={{
+      fontFamily: 'var(--font)',
+      fontSize: '11px',
+      fontWeight: 900,
+      color: '#E4002B',
+      letterSpacing: '3px',
+      textTransform: 'uppercase',
+      borderLeft: '2px solid #E4002B',
+      paddingLeft: '12px'
+    }}>2025 CALENDAR</span>
+  </div>
+
+  {/* Fade edges */}
+  <div style={{ position: 'relative' }}>
+    <div style={{
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      bottom: 0,
+      width: '120px',
+      background: 'linear-gradient(90deg, #050505, transparent)',
+      zIndex: 2,
+      pointerEvents: 'none'
+    }} />
+    <div style={{
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      bottom: 0,
+      width: '120px',
+      background: 'linear-gradient(270deg, #050505, transparent)',
+      zIndex: 2,
+      pointerEvents: 'none'
+    }} />
+
+    <div style={{ overflow: 'hidden', width: '100%' }}></div>
+    <div style={{
+      display: 'flex',
+      gap: '12px',
+      width: 'max-content',
+      animation: 'carouselScroll 80s linear infinite',
+    }}>
+      {/* Duplicate the array for seamless loop */}
+      {[...Array(2)].flatMap(() => [
+        { round: 'R01', name: 'BAHRAIN', country: 'BHR', laps: 57, type: 'PERMANENT' },
+        { round: 'R02', name: 'JEDDAH', country: 'KSA', laps: 50, type: 'STREET' },
+        { round: 'R03', name: 'MELBOURNE', country: 'AUS', laps: 58, type: 'STREET' },
+        { round: 'R04', name: 'SUZUKA', country: 'JPN', laps: 53, type: 'PERMANENT' },
+        { round: 'R05', name: 'SHANGHAI', country: 'CHN', laps: 56, type: 'PERMANENT' },
+        { round: 'R06', name: 'MIAMI', country: 'USA', laps: 57, type: 'STREET' },
+        { round: 'R07', name: 'IMOLA', country: 'ITA', laps: 63, type: 'PERMANENT' },
+        { round: 'R08', name: 'MONACO', country: 'MON', laps: 78, type: 'STREET' },
+        { round: 'R09', name: 'MONTREAL', country: 'CAN', laps: 70, type: 'STREET' },
+        { round: 'R10', name: 'BARCELONA', country: 'ESP', laps: 66, type: 'PERMANENT' },
+        { round: 'R11', name: 'SPIELBERG', country: 'AUT', laps: 71, type: 'PERMANENT' },
+        { round: 'R12', name: 'SILVERSTONE', country: 'GBR', laps: 52, type: 'PERMANENT' },
+        { round: 'R13', name: 'BUDAPEST', country: 'HUN', laps: 70, type: 'PERMANENT' },
+        { round: 'R14', name: 'SPA', country: 'BEL', laps: 44, type: 'PERMANENT' },
+        { round: 'R15', name: 'ZANDVOORT', country: 'NLD', laps: 72, type: 'PERMANENT' },
+        { round: 'R16', name: 'MONZA', country: 'ITA', laps: 53, type: 'PERMANENT' },
+        { round: 'R17', name: 'BAKU', country: 'AZE', laps: 51, type: 'STREET' },
+        { round: 'R18', name: 'SINGAPORE', country: 'SGP', laps: 62, type: 'STREET' },
+        { round: 'R19', name: 'AUSTIN', country: 'USA', laps: 56, type: 'PERMANENT' },
+        { round: 'R20', name: 'MEXICO CITY', country: 'MEX', laps: 71, type: 'PERMANENT' },
+        { round: 'R21', name: 'SAO PAULO', country: 'BRA', laps: 71, type: 'PERMANENT' },
+        { round: 'R22', name: 'LAS VEGAS', country: 'USA', laps: 50, type: 'STREET' },
+        { round: 'R23', name: 'LUSAIL', country: 'QAT', laps: 57, type: 'PERMANENT' },
+        { round: 'R24', name: 'ABU DHABI', country: 'UAE', laps: 58, type: 'PERMANENT' },
+      ]).map((circuit, i) => (
+        <a key={i} href="/circuit" style={{ textDecoration: 'none', flexShrink: 0 }}>
+          <div
+            style={{
+              background: '#0a0a0ada',
+              backgroundImage: `
+                conic-gradient(#151515 90deg, #0a0a0a 90deg 180deg, #151515 180deg 270deg, #0a0a0a 270deg)
+              `,
+              backgroundSize: '30px 30px',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '12px',
+              padding: '24px',
+              width: '200px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = '#E4002B'
+              e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)'
+              e.currentTarget.style.boxShadow = '0 20px 40px rgba(228,0,43,0.15)'
+              e.currentTarget.parentElement.parentElement.style.animationPlayState = 'paused'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
+              e.currentTarget.style.transform = 'translateY(0) scale(1)'
+              e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)'
+              e.currentTarget.parentElement.parentElement.style.animationPlayState = 'running'
+            }}
+          >
+            {/* Subtle gloss overlay */}
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%)', pointerEvents: 'none' }} />
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <span style={{
+                fontFamily: 'var(--mono)',
+                fontSize: '10px',
+                color: '#E4002B',
+                letterSpacing: '2px'
+              }}>{circuit.round}</span>
+              <span style={{
+                fontFamily: 'var(--mono)',
+                fontSize: '9px',
+                color: circuit.type === 'STREET' ? '#D4AF37' : '#4b5563',
+                letterSpacing: '1px',
+                padding: '2px 6px',
+                border: `1px solid ${circuit.type === 'STREET' ? 'rgba(212,175,55,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                borderRadius: '4px'
+              }}>{circuit.type}</span>
+            </div>
+
+            <div style={{
+              fontFamily: 'var(--font)',
+              fontSize: '15px',
+              fontWeight: 900,
+              color: '#fff',
+              letterSpacing: '1px',
+              lineHeight: 1.1
+            }}>{circuit.name}</div>
+
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: '4px'
+            }}>
+              <span style={{
+                fontFamily: 'var(--mono)',
+                fontSize: '10px',
+                color: '#4b5563',
+                letterSpacing: '1px'
+              }}>{circuit.country}</span>
+              <span style={{
+                fontFamily: 'var(--mono)',
+                fontSize: '10px',
+                color: '#4b5563'
+              }}>{circuit.laps} laps</span>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
         <footer style={{
   marginTop: 'auto',
   width: '100%',
@@ -846,7 +860,7 @@ export default function HomePage() {
         <span style={{ color: '#fff', fontFamily: 'var(--font)', fontWeight: 900, fontSize: '24px' }}>TRACK</span>
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-        {['Java', 'Spring Boot', 'React', 'Oracle OCI', 'Open F1 API', 'Three.js', 'Oracle MySQL', 'CSS'].map(tech => (
+        {['Java', 'Spring Boot', 'React', 'Open F1 API', 'Three.js', 'CSS'].map(tech => (
           <span key={tech} style={{
             padding: '6px 12px',
             border: '1px solid rgba(255,255,255,0.1)',

@@ -14,10 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Historical race data from the local SQLite dataset (f1db.db).
- * Used when OpenF1 is unavailable or for pit summaries that match the same DB as the rest of the API.
- */
 @Service
 public class LocalTelemetryService {
 
@@ -141,9 +137,6 @@ public class LocalTelemetryService {
         return out;
     }
 
-    /**
-     * Lap-style series for one season: one point per Grand Prix (round) using total race time when parseable.
-     */
     public List<Map<String, Object>> seasonLapsForDriver(int year, String driverId) {
         List<Map<String, Object>> out = new ArrayList<>();
         String sql = """
@@ -208,9 +201,6 @@ public class LocalTelemetryService {
         return out;
     }
 
-    /**
-     * Parses strings like "1:38:28.123" or "38:28.123" into seconds (best-effort).
-     */
     private static Map<String, Object> buildPitStats(List<Map<String, Object>> historical, List<Integer> pitCounts) {
         Map<String, Object> stats = new LinkedHashMap<>();
         stats.put("racesListed", historical.size());
@@ -235,7 +225,6 @@ public class LocalTelemetryService {
                     })
                     .toList());
             
-            // New: Average finish per pit count
             Map<Integer, List<Integer>> finishPositionsByPitCount = new LinkedHashMap<>();
             for (Map<String, Object> row : historical) {
                 Integer pits = (Integer) row.get("racePitStops");

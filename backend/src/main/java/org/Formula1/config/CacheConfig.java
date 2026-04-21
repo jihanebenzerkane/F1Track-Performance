@@ -15,7 +15,6 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
-        // Register the specific caches used in StandingService and others
         cacheManager.setCacheNames(Arrays.asList(
             "driverStandings", 
             "constructorStandings", 

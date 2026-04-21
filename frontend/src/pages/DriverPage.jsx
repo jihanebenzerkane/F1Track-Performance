@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { getTeamColor, getNatCode } from '../api/images'
 import DriverImage from '../components/DriverImage'
-import { safeGetStandings } from '../api/f1api'
+import { safeGetStandings, getDriverPerformance, getDriverForm } from '../api/f1api'
 import {
   ResponsiveContainer, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine
 } from 'recharts'
 
-const BASE = 'http://localhost:8081'
 const SEASONS = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006, 2005, 2004, 2003, 2002, 2001, 2000, 1999, 1998, 1997, 1996, 1995, 1994, 1993, 1992, 1991, 1990, 1989, 1988, 1987, 1986, 1985, 1984, 1983, 1982, 1981, 1980, 1979, 1978, 1977, 1976, 1975, 1974, 1973, 1972, 1971, 1970, 1969, 1968, 1967, 1966, 1965, 1964, 1963, 1962, 1961, 1960, 1959, 1958, 1957, 1956, 1955, 1954, 1953, 1952, 1951, 1950]
 
 function StatMini({ label, value, color = '#fffbfcff', delay = 0 }) {
@@ -46,6 +45,8 @@ function FormBadge({ rating }) {
   )
 }
 
+
+
 export default function DriverPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -70,14 +71,8 @@ export default function DriverPage() {
     setError(false)
 
     Promise.allSettled([
-      fetch(`${BASE}/api/analysis/driver/${id}/${season}`).then(r => {
-        if (!r.ok) throw new Error('analysis failed')
-        return r.json()
-      }),
-      fetch(`${BASE}/api/predictions/form/${id}`).then(r => {
-        if (!r.ok) throw new Error('form failed')
-        return r.json()
-      }),
+      getDriverPerformance(id, season),
+      getDriverForm(id),
       safeGetStandings(season),
     ])
       .then((results) => {
@@ -156,7 +151,7 @@ export default function DriverPage() {
           borderRadius: '12px', padding: '32px', textAlign: 'center', color: '#E4002B',
           fontFamily: "'Formula1', sans-serif", fontSize: '14px',
         }}>
-          Could not load driver data — make sure the backend is running on port 8081.
+          Could not load driver data — make sure the backend is running on port 8085.
         </div>
       )}
 
@@ -199,7 +194,6 @@ export default function DriverPage() {
               )}
             </div>
 
-            {/* Season selector */}
             <select
               value={season}
               onChange={e => setSeason(parseInt(e.target.value))}
@@ -211,7 +205,7 @@ export default function DriverPage() {
                 outline: 'none'
               }}
             >
-              {SEASONS.map(y => <option key={y} value={y}>{y} SEASON</option>)}
+              {SEASONS.map(y => <option key={y} value={y} style={{ background: '#0a0a0a', color: '#f4f5f8' }}>{y} SEASON</option>)}
             </select>
           </div>
 
@@ -226,7 +220,6 @@ export default function DriverPage() {
             <StatMini label="Fastest Laps" value={fastestLaps} color="#E4002B" delay={0.4} />
           </div>
 
-          {/* Points Trajectory Chart */}
           {races.length > 0 && (() => {
             let running = 0;
             const chartData = races.map(r => {

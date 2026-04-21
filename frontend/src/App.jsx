@@ -1,3 +1,4 @@
+import { useRef, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, NavLink, useLocation, Navigate, Link } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import StandingsPage from './pages/StandingsPage'
@@ -134,10 +135,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Cars — fully standalone, no Layout */}
         <Route path="/cars" element={<CarsPage />} />
-
-        {/* All other pages — wrapped in Layout */}
         <Route path="/" element={<Layout><HomePage /></Layout>} />
         <Route path="/standings" element={<Layout><StandingsPage /></Layout>} />
         <Route path="/drivers/:id" element={<Layout><DriverPage /></Layout>} />
@@ -149,7 +147,6 @@ export default function App() {
         <Route path="/telemetry" element={<Layout><TelemetryPage /></Layout>} />
         <Route path="/regulations" element={<Layout><Regulation2026Page /></Layout>} />
         <Route path="/race-results/:raceId" element={<Layout><RaceResultsPage /></Layout>} />
-        {/* Alias for legacy or external links */}
         <Route path="/DriverStandings" element={<Navigate to="/standings" replace />} />
       </Routes>
     </BrowserRouter>

@@ -9,20 +9,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controller for F1 Standings and Season KPI information.
- */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/standings")
 public class StandingsController {
 
     @Autowired
     private StandingService standingService;
 
-    /**
-     * GET /api/standings/2023
-     * Returns driver standings for a specific year.
-     */
     @GetMapping("/standings/{year}")
     public List<DriverStandingDTO> getDriverStandings(
             @PathVariable int year,
@@ -30,10 +23,6 @@ public class StandingsController {
         return standingService.getDriverStandings(year, mode);
     }
 
-    /**
-     * GET /api/standings/2023/constructors
-     * Returns constructor standings for a specific year.
-     */
     @GetMapping("/standings/{year}/constructors")
     public List<ConstructorStandingDTO> getConstructorStandings(
             @PathVariable int year,
@@ -41,18 +30,13 @@ public class StandingsController {
         return standingService.getConstructorStandings(year, mode);
     }
 
-    /**
-     * GET /api/leader/2023
-     * Returns summary KPI info (Champion, total races, etc.).
-     */
+    
     @GetMapping("/leader/{year}")
     public LeaderDTO getLeaderInfo(@PathVariable int year) {
         return standingService.getLeaderInfo(year);
     }
 
-    /**
-     * DEBUG: List all tables in the connected database.
-     */
+    //DEBUG: List all tables in the connected database.
     @GetMapping("/debug/tables")
     public java.util.Map<String, Object> debugTables() {
         java.util.Map<String, Object> result = new java.util.LinkedHashMap<>();
@@ -85,9 +69,7 @@ public class StandingsController {
         return result;
     }
 
-    /**
-     * DEBUG: Show columns for key tables.
-     */
+    //DEBUG: Show columns for key tables.
     @GetMapping("/debug/columns")
     public java.util.Map<String, Object> debugColumns() {
         java.util.Map<String, Object> result = new java.util.LinkedHashMap<>();
