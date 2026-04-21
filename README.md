@@ -1,64 +1,79 @@
-# F1Track: A Passenger on the Data Express 🏎️
+# F1Track
 
-Welcome to my passion project! **F1Track** is a labor of love born from two things: an obsession with Formula 1 technicalities and a drive to master the complex world of Full-Stack development. 
+Full-stack Formula 1 data and predictions platform built around the 2026 season.
 
-This isn't just a standings app,it's an engineering playground where I've experimented with real-time data integration, technical simulations, and high-end graphics.
+![React](https://img.shields.io/badge/React-Vite-61DAFB?style=flat&logo=react)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2.5-6DB33F?style=flat&logo=springboot)
+![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=flat&logo=sqlite)
+![Three.js](https://img.shields.io/badge/3D-Three.js-black?style=flat&logo=threedotjs)
 
----
+## What it does
 
-## 🌟 The Vision
-As a student of computer science, my goal was to build a professional-grade analysis tool that feels as fast and sophisticated as the cars on the grid. I wanted to handle everything from low-level SQL queries to high-level 3D animations, creating a bridge between raw sports data and a premium user experience.
+F1Track combines historical F1 data (1950–2026), live standings, real-time telemetry,
+and a Monte Carlo race prediction engine into a single web application.
 
----
+## Stack
 
-## 🚀 Technical Deep Dive
+**Frontend**
+- React 18 + Vite
+- Three.js / React Three Fiber — 3D interactive car viewer
+- Recharts — telemetry and lap data visualization
+- Custom design system (Inter + IBM Plex Mono, black/crimson palette)
 
-### 🏗️ Backend: The Engine Room (Java & Spring Boot)
-The "power unit" of this app is built on **Spring Boot 3.2.5**. 
-- **The Persistence Layer:** I used **SQLite** to simulate a real-world relational dataset, practicing complex SQL joins for historical race results (1950-Present).
-- **Predictive Modeling:** Since the 2026 season brings new FIA regulations, I built a custom **Simulation Engine** in Java. It uses weighted probabilities to forecast team performance, allowing me to explore the intersection of sports logic and algorithmic code.
-- **Challenge Overcome:** One of my biggest learning moments was managing port conflicts with local services (like Apache) and implementing a clean DAO (Data Access Object) pattern to keep the code modular and "industry-ready."
+**Backend**
+- Spring Boot 3.2.5 REST API — 20+ endpoints
+- SQLite — relational dataset with historical F1 data (1950–2026)
+- DAO pattern with complex SQL joins across race, driver, and circuit tables
+- Monte Carlo simulation engine for race predictions (50,000 iterations)
 
-### 🎨 Frontend: The Aerodynamics (React & Three.js)
-The "chassis" is a cutting-edge **React (Vite)** application.
-- **Human-Centric UI Refinement:** I refactored the entire analytical suite (Telemetry, Standings, H2H) to move away from rigid grid layouts toward a centered, vertical "Analysis Flow." This reduces cognitive load and mimics professional engineering dashboards.
-- **3D Visualization:** I integrated **Three.js** to render 3D car models on the homepage, creating an immersive entry point that moves beyond static lists.
-- **Global Pit Wall Aesthetic:** I implemented a unified design system where every dropdown and button follows a custom-crafted dark mode. By standardizing form elements application-wide, the tool feels like a single, cohesive piece of race equipment.
-- **State Management:** Managing asynchronous fetches for multiple standings, predictions, and telemetry streams taught me the importance of robust error handling and loading states.
-- **Engineering Depth:** Beyond just charts, I integrated "System Diagnostics" into the UI to provide a sense of the backend's real-time telemetry extraction process.
+**External APIs**
+- OpenF1 API — live session telemetry, lap data, driver rosters
 
----
+## Features
 
-## 🧠 What I Learned
-1. **Full-Stack Orchestration:** Connecting a Java Spring backend to a React frontend taught me the nuances of RESTful APIs, CORS, and JSON serialization.
-2. **Data Integrity:** Cleaning and mapping historical F1 data (often messy!) into a clean SQLite schema was a masterclass in database design.
-3. **UX for Data:** Learning how to display 70+ years of data without overwhelming the user led to the development of the "Awards & Insights" tab and the "Form Rating" system.
+- **Race Predictions** — Monte Carlo simulation using historical results,
+  driver standings, and circuit-specific performance history
+- **Telemetry Cockpit** — Live speed, RPM, throttle and brake data
+  streamed via OpenF1, sampled and visualized per driver per session
+- **3D Car Viewer** — Interactive component explorer with specs and
+  upgrade timelines across 6 teams × 8 components
+- **Championship Standings** — Drivers and constructors, 1950–2026
+- **Head-to-Head** — Driver comparison across shared seasons
+- **Pit Strategy** — Stop analysis and undercut modeling
+- **FIA 2026 Regulations** — Technical breakdown with data impact
+  notes connected to each feature in the app
 
----
+## Architecture notes
 
-## 🛠️ How to Launch
+The prediction engine uses Monte Carlo simulation rather than ML —
+a deliberate choice to keep the math transparent and explainable.
+50,000 iterations per prediction, weighted by historical win rates,
+driver standings, and circuit-specific performance history.
 
-### 1. Start the Backend
+The telemetry pipeline samples raw OpenF1 car data at 1/800 rate
+to keep render performance stable while preserving the signal shape
+across speed, RPM, throttle and brake channels.
+
+## Run locally
+
+**Backend**
 ```bash
 cd backend
 mvn spring-boot:run
+# Runs on port 8085
 ```
-*Note: Configured to run on port 8085 by default to avoid system conflicts.*
 
-### 2. Start the Frontend
+**Frontend**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
+## Recording
+
+![F1Track Homepage](screenshots/)
+
 ---
 
-## 🎥 Demonstration
-
----
-
-### 🏁 Final Thoughts
-This project is a testament to my growth as a developer. It represents thousands of lines of code, several sleepless nights debugging port errors, and a genuine pride in creating something that combines my technical skills with my passion for racing.
-
-**Developed with ❤️ and ☕ by Jihane Benzerkane.**
+Built by [Jihane Benzerkane](https://www.linkedin.com/in/jihanebenzerkane)
