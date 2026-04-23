@@ -29,6 +29,21 @@ and a Monte Carlo race prediction engine into a single web application.
 - DAO pattern with complex SQL joins across race, driver, and circuit tables
 - Monte Carlo simulation engine for race predictions (50,000 iterations)
 
+**Data pipelines**
+
+Historical data (f1db.db)
+→ Local SQLite database (1950–2026)
+→ Structured relational schema (drivers, races, constructors, circuits, results)
+→ Used as the main input for analysis and simulation
+→ Queried via DAO layer with multi-table joins
+
+Real-time telemetry (OpenF1)
+→ Live ingestion from OpenF1 API
+→ Streams: speed, RPM, throttle, brake
+→ Normalization layer for inconsistent inputs
+→ Downsampling (1/800) for frontend performance
+→ Ingestion → transform → API → visualization flow
+
 **Infrastructure**
 - Deployed on Oracle Cloud Infrastructure (OCI)  VM.Standard.A1.Flex, Casablanca region
 - Dockerized frontend (Nginx) and backend (eclipse-temurin:21)
