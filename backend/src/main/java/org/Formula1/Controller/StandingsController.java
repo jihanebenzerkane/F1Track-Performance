@@ -16,14 +16,14 @@ public class StandingsController {
     @Autowired
     private StandingService standingService;
 
-    @GetMapping("/standings/{year}")
+    @GetMapping("/{year}")
     public List<DriverStandingDTO> getDriverStandings(
             @PathVariable int year,
             @RequestParam(required = false, defaultValue = "real") String mode) {
         return standingService.getDriverStandings(year, mode);
     }
 
-    @GetMapping("/standings/{year}/constructors")
+    @GetMapping("/{year}/constructors")
     public List<ConstructorStandingDTO> getConstructorStandings(
             @PathVariable int year,
             @RequestParam(required = false, defaultValue = "real") String mode) {

@@ -156,11 +156,11 @@ export default function StandingsPage() {
       <div style={{
         display: 'flex', alignItems: 'flex-end',
         justifyContent: 'space-between', marginBottom: '24px',
-        flexWrap: 'wrap', gap: '16px',
+        flexWrap: 'wrap', gap: '20px',
       }}>
         <div>
           <PageTitle>
-            <span style={{ color: '#E4002B' }}>{season}</span> Standings
+            {season} Standings
           </PageTitle>
         </div>
 
@@ -174,7 +174,7 @@ export default function StandingsPage() {
               background: '#0a0a0a',
               border: '1px solid rgba(255,255,255,0.07)',
               color: '#f0f0f8',
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "'DM sans', sans-serif",
               fontSize: '13px', padding: '8px 16px',
               borderRadius: '8px', cursor: 'pointer',
               outline: 'none',
@@ -228,7 +228,7 @@ export default function StandingsPage() {
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: '60px', color: '#6b6b90',
-          fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', gap: '12px',
+          fontFamily: "'DM sans', sans-serif", fontSize: '13px', gap: '12px',
         }}>
           <div style={{
             width: '18px', height: '18px',
@@ -236,7 +236,7 @@ export default function StandingsPage() {
             borderTopColor: '#E4002B', borderRadius: '50%',
             animation: 'spin .7s linear infinite',
           }} />
-          Fetching {season} {mode} data...
+          Fetching {season} data...
           <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
         </div>
       )}

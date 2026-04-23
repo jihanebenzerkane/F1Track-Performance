@@ -110,7 +110,7 @@ public class StandingsDAO {
     public LeaderDTO getLeaderInfo(int year) {
         LeaderDTO leader = new LeaderDTO();
         try (Connection conn = DataBaseManager.connect()) {
-            String champQuery = "SELECT CONCAT(d.first_name, ' ', d.last_name) as name " +
+            String champQuery = "SELECT d.first_name || ' ' || d.last_name as name " +
                                 "FROM race_driver_standing ds JOIN driver d ON ds.driver_id = d.id " +
                                 "JOIN race r ON ds.race_id = r.id " +
                                 "WHERE r.year = ? AND r.round = (SELECT MAX(r2.round) FROM race_driver_standing ds2 JOIN race r2 ON ds2.race_id = r2.id WHERE r2.year = ?) " +
@@ -128,7 +128,7 @@ public class StandingsDAO {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) leader.setTotalRaces(rs.getInt(1));
             }
-            String podiumsQuery = "SELECT CONCAT(d.first_name, ' ', d.last_name) as name " +
+            String podiumsQuery = "SELECT d.first_name || ' ' || d.last_name as name " +
                     "FROM race_data res JOIN driver d ON res.driver_id = d.id " +
                     "JOIN race r ON res.race_id = r.id " +
                     "WHERE r.year = ? AND res.position_number <= 3 AND res.type = 'RACE_RESULT' " +
@@ -140,7 +140,7 @@ public class StandingsDAO {
                 if (rs.next()) leader.setMostPodiumsDriver(rs.getString("name"));
             }
 
-            String winsQuery = "SELECT CONCAT(d.first_name, ' ', d.last_name) as name " +
+            String winsQuery = "SELECT d.first_name || ' ' || d.last_name as name " +
                                "FROM race_data res JOIN driver d ON res.driver_id = d.id " +
                                "JOIN race r ON res.race_id = r.id " +
                                "WHERE r.year = ? AND res.position_number = 1 AND res.type = 'RACE_RESULT' " +

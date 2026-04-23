@@ -5,7 +5,7 @@ import { getCircuits, safeGetStandings, getDbPitStrategy } from '../api/f1api'
 /**
  * PitStrategyPage: Historical pit stop analysis.
  */
-const API_BASE = 'http://localhost:8085'
+const API_BASE = ' '
 
 
 function normalizePitDrivers(rows) {
@@ -103,7 +103,6 @@ export default function PitStrategyPage() {
             const mapped = normalizePitDrivers(raw)
             if (!cancelled && mapped.length > 0) {
               setDrivers(mapped)
-              setDriverRosterNote(`No ${season} championship data in the local database — showing the ${fallbackYear} driver list (IDs match the database).`)
               return
             }
           }
@@ -149,14 +148,9 @@ export default function PitStrategyPage() {
           letterSpacing: '2px',
           color: '#fff'
         }}>
-          Pit <span style={{ color: '#E4002B' }}>Strategy</span>
+          Pit Strategy
         </h1>
-        <p style={{
-          color: '#4b5563',
-          fontSize: '14px',
-          fontFamily: 'var(--mono)',
-          letterSpacing: '1px'
-        }}>Race-by-race pit counts and finishes at this circuit from the project database (via backend).</p>
+
       </div>
 
       {/* Controls */}
@@ -181,7 +175,7 @@ export default function PitStrategyPage() {
               onChange={e => setSeason(parseInt(e.target.value))}
               style={{
                 background: '#141414', border: '1px solid rgba(255,255,255,0.07)',
-                color: '#f4f5f8', padding: '10px 14px', borderRadius: '8px',
+                color: '#f4f5f8', padding: '10px 15px', borderRadius: '8px',
                 fontFamily: 'var(--font)', fontSize: '13px', cursor: 'pointer', outline: 'none'
               }}
             >
@@ -197,7 +191,7 @@ export default function PitStrategyPage() {
               marginBottom: '8px', fontFamily: 'var(--font)'
             }}>Driver</label>
             {driverRosterNote ? (
-              <p style={{ fontSize: '11px', color: '#9ca3af', fontFamily: 'var(--mono)', marginBottom: '8px', maxWidth: '520px', lineHeight: 1.45 }}>
+              <p style={{ fontSize: '11px', color: '#9ca3af', fontFamily: 'syne', marginBottom: '8px', maxWidth: '520px', lineHeight: 1.45 }}>
                 {driverRosterNote}
               </p>
             ) : null}
@@ -206,7 +200,7 @@ export default function PitStrategyPage() {
               onChange={e => setDriverId(e.target.value)}
               style={{
                 background: '#141414', border: '1px solid rgba(255,255,255,0.07)',
-                color: '#f4f5f8', padding: '10px 14px', borderRadius: '8px',
+                color: '#f4f5f8', padding: '10px 15px', borderRadius: '8px',
                 fontFamily: 'var(--font)', fontSize: '13px', cursor: 'pointer',
                 minWidth: '200px', outline: 'none'
               }}
@@ -232,7 +226,7 @@ export default function PitStrategyPage() {
               onChange={e => setCircuitId(e.target.value)}
               style={{
                 background: '#141414', border: '1px solid rgba(255,255,255,0.07)',
-                color: '#f4f5f8', padding: '10px 14px', borderRadius: '8px',
+                color: '#f4f5f8', padding: '10px 15px', borderRadius: '8px',
                 fontFamily: 'var(--font)', fontSize: '13px', cursor: 'pointer',
                 minWidth: '200px', outline: 'none'
               }}
@@ -258,7 +252,7 @@ export default function PitStrategyPage() {
               borderRadius: '8px',
               color: '#fff',
               fontWeight: 900,
-              fontSize: '12px',
+              fontSize: '13PX',
               fontFamily: 'var(--font)',
               cursor: !driverId || !circuitId ? 'not-allowed' : 'pointer',
               opacity: !driverId || !circuitId ? 0.4 : 1,
@@ -277,7 +271,7 @@ export default function PitStrategyPage() {
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: '60px', color: '#4b5563',
-          fontFamily: 'var(--mono)', fontSize: '13px', gap: '12px'
+          fontFamily: 'unset', fontSize: '13px', gap: '13PX'
         }}>
           <div style={{
             width: '18px', height: '18px',
@@ -305,24 +299,24 @@ export default function PitStrategyPage() {
             padding: '24px 28px',
           }}>
             <div style={{
-              fontFamily: 'var(--font)', fontSize: '15px', fontWeight: 900,
+              fontFamily: 'var(--font)', fontSize: '18px', fontWeight: 900,
               textTransform: 'uppercase', color: '#fff', letterSpacing: '1px',
             }}>
               Strategy for {selectedDriverMeta?.name || formatName(data.driver)}
             </div>
             <div style={{
-              marginTop: '8px', fontSize: '12px', color: '#E4002B',
-              fontFamily: 'var(--mono)', letterSpacing: '1px',
+              marginTop: '8px', fontSize: '15px', color: '#E4002B',
+              fontFamily: 'syne', letterSpacing: '1px',
             }}>
               {getFlag(selected?.countryId)} {selected?.name}
               {data.stats?.yearFrom && data.stats?.yearTo ? (
-                <span style={{ color: '#6b7280', marginLeft: '12px' }}>
+                <span style={{ color: '#6b7280', marginLeft: '15px' }}>
                   · Seasons {data.stats.yearFrom}–{data.stats.yearTo}
                 </span>
               ) : null}
             </div>
             {selectedDriverMeta?.team ? (
-              <div style={{ marginTop: '6px', fontSize: '11px', color: '#6b7280', fontFamily: 'var(--mono)' }}>
+              <div style={{ marginTop: '6px', fontSize: '11px', color: '#6b7280', fontFamily: 'syne' }}>
                 Team: <span style={{ color: '#9ca3af' }}>{selectedDriverMeta.team}</span>
                 {(selectedDriverMeta.carNumber != null || selectedDriverMeta.number) ? ` · #${selectedDriverMeta.carNumber || selectedDriverMeta.number}` : ''}
               </div>
@@ -332,7 +326,7 @@ export default function PitStrategyPage() {
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-                gap: '14px',
+                gap: '15px',
                 marginTop: '22px',
               }}>
                 {[
@@ -349,10 +343,10 @@ export default function PitStrategyPage() {
                   <div key={label} style={{
                     background: 'rgba(255,255,255,0.03)',
                     borderRadius: '10px',
-                    padding: '14px 16px',
+                    padding: '15px 16px',
                     border: '1px solid rgba(255,255,255,0.06)',
                   }}>
-                    <div style={{ fontSize: '9px', color: '#6b7280', fontFamily: 'var(--mono)', textTransform: 'uppercase', letterSpacing: '1px' }}>{label}</div>
+                    <div style={{ fontSize: '9px', color: '#6b7280', fontFamily: 'syne', textTransform: 'uppercase', letterSpacing: '1px' }}>{label}</div>
                     <div style={{ fontSize: '20px', fontWeight: 900, color: '#E4002B', fontFamily: 'var(--font)', marginTop: '6px' }}>{val}</div>
                   </div>
                 ))}
@@ -361,7 +355,7 @@ export default function PitStrategyPage() {
 
             {Array.isArray(data.stats?.pitStopDistribution) && data.stats.pitStopDistribution.length > 0 ? (
               <div style={{ marginTop: '24px' }}>
-                <div style={{ fontSize: '10px', color: '#6b7280', fontFamily: 'var(--mono)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '12px' }}>
+                <div style={{ fontSize: '10px', color: '#6b7280', fontFamily: 'syne', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '13PX' }}>
                   Pit-stop count distribution
                 </div>
                 {data.stats.pitStopDistribution.map((row, i) => {
@@ -369,7 +363,7 @@ export default function PitStrategyPage() {
                   const pct = Math.round((row.races / maxRaces) * 100)
                   return (
                     <div key={row.stops} style={{ marginBottom: '10px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontFamily: 'var(--mono)', color: '#9ca3af', marginBottom: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontFamily: 'syne', color: '#9ca3af', marginBottom: '4px' }}>
                         <span>{row.stops} stop{row.stops === 1 ? '' : 's'}</span>
                         <span>{row.races} race{row.races === 1 ? '' : 's'}</span>
                       </div>
@@ -410,9 +404,9 @@ export default function PitStrategyPage() {
                 data.strategy.map((rec, i) => (
                   <div key={i} style={{
                     background: 'rgba(255,255,255,0.02)',
-                    borderRadius: '12px',
+                    borderRadius: '13PX',
                     padding: '20px',
-                    marginBottom: '12px',
+                    marginBottom: '13PX',
                     border: '1px solid rgba(255,255,255,0.05)',
                     opacity: 0,
                     transform: 'translateY(10px)',
@@ -421,18 +415,18 @@ export default function PitStrategyPage() {
                   }}>
                     <div style={{
                       display: 'flex', justifyContent: 'space-between',
-                      alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px',
+                      alignItems: 'center', marginBottom: '13PX', flexWrap: 'wrap', gap: '8px',
                     }}>
                       <span style={{
                         fontFamily: 'var(--font)', fontWeight: 700,
-                        fontSize: '14px', textTransform: 'uppercase',
+                        fontSize: '15px', textTransform: 'uppercase',
                         color: i === 0 ? '#E4002B' : '#fff'
                       }}>
-                        {i === 0 ? '🏆 Recommended' : `Option #${rec.stopNumber}`}
+                        {i === 0 ? '-> Recommended' : `Option #${rec.stopNumber}`}
                       </span>
                       <span style={{
-                        fontSize: '10px', color: '#4b5563',
-                        fontFamily: 'var(--mono)', letterSpacing: '1px'
+                        fontSize: '12px', color: '#4b5563',
+                        fontFamily: 'syne', letterSpacing: '1px'
                       }}>
                         Based on {rec.basedOnRaces} races
                       </span>
@@ -441,15 +435,15 @@ export default function PitStrategyPage() {
                       {rec.recommendedLap > 0 ? (
                         <div style={{
                           fontSize: '40px', fontWeight: 900,
-                          color: '#E4002B', fontFamily: 'var(--mono)', lineHeight: 1
+                          color: '#E4002B', fontFamily: 'syne', lineHeight: 1
                         }}>
                           L{rec.recommendedLap}
                         </div>
                       ) : null}
                       <div style={{
-                        fontSize: '12px', color: '#9ca3af',
+                        fontSize: '13PX', color: '#9ca3af',
                         lineHeight: 1.5, maxWidth: '420px',
-                        fontFamily: 'var(--mono)',
+                        fontFamily: 'syne',
                       }}>
                         {rec.summary ? rec.summary : 'Optimal stint window from OpenF1-style stint history (when available).'}
                       </div>
@@ -460,7 +454,7 @@ export default function PitStrategyPage() {
                 <div style={{
                   background: '#141414', borderRadius: '10px',
                   padding: '24px', textAlign: 'center',
-                  color: '#4b5563', fontFamily: 'var(--mono)', fontSize: '12px'
+                  color: '#4b5563', fontFamily: 'syne', fontSize: '13PX'
                 }}>
                   {typeof data.strategy === 'string' ? data.strategy : 'No strategy data available.'}
                 </div>
@@ -483,13 +477,13 @@ export default function PitStrategyPage() {
                 fontSize: '13px', fontWeight: 900,
                 textTransform: 'uppercase', color: '#fff'
               }}>
-                Race history (pit stops & result)
+                Race history
               </div>
 
               {!data.historicalStops || data.historicalStops.length === 0 ? (
                 <div style={{
                   padding: '40px', textAlign: 'center',
-                  color: '#4b5563', fontFamily: 'var(--mono)', fontSize: '12px'
+                  color: '#4b5563', fontFamily: 'syne', fontSize: '13PX'
                 }}>
                   No historical data available for this combination.
                 </div>
@@ -499,13 +493,12 @@ export default function PitStrategyPage() {
                     display: 'grid', gridTemplateColumns: '72px 1fr 88px 100px',
                     padding: '10px 24px',
                     borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    fontFamily: 'var(--mono)', fontSize: '10px',
+                    fontFamily: 'syne', fontSize: '10px',
                     color: '#4b5563', textTransform: 'uppercase', letterSpacing: '1px',
                     position: 'sticky', top: 0, background: '#0a0a0a', zIndex: 1,
                   }}>
                     <div>Year</div>
                     <div>Pit stops</div>
-                    <div>Stint lap</div>
                     <div style={{ textAlign: 'right' }}>Finish</div>
                   </div>
 
@@ -514,10 +507,10 @@ export default function PitStrategyPage() {
                       key={`${stop.year}-${i}`}
                       style={{
                         display: 'grid', gridTemplateColumns: '72px 1fr 88px 100px',
-                        padding: '12px 24px',
+                        padding: '13PX 24px',
                         borderBottom: '1px solid rgba(255,255,255,0.04)',
                         alignItems: 'center',
-                        fontFamily: 'var(--mono)', fontSize: '12px',
+                        fontFamily: 'syne', fontSize: '13PX',
                         opacity: 0,
                         transform: 'translateY(6px)',
                         animation: 'fadeUp 0.35s ease forwards',
@@ -527,13 +520,10 @@ export default function PitStrategyPage() {
                       onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
                       onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
                     >
-                      <div style={{ color: '#E4002B', fontWeight: 700 }}>{stop.year}</div>
+                      <div style={{ color: '#ffe100ff', fontWeight: 700 }}>{stop.year}</div>
                       <div style={{ color: '#fff', fontWeight: 600 }}>
                         {stop.racePitStops != null ? `${stop.racePitStops} stop${stop.racePitStops === 1 ? '' : 's'}` : '—'}
                         {stop.compound ? <span style={{ color: '#6b7280', fontWeight: 400, marginLeft: '8px' }}>{stop.compound}</span> : null}
-                      </div>
-                      <div style={{ color: '#9ca3af' }}>
-                        {stop.lap != null ? `Lap ${stop.lap}` : '—'}
                       </div>
                       <div style={{ color: '#d1d5db', textAlign: 'right', fontWeight: 700 }}>
                         {stop.finishPosition ? `P${stop.finishPosition}` : '—'}
@@ -551,9 +541,9 @@ export default function PitStrategyPage() {
       {!loading && !data && (
         <div style={{
           textAlign: 'center', padding: '60px',
-          color: '#4b5563', fontFamily: 'var(--mono)', fontSize: '13px'
+          color: '#4b5563', fontFamily: 'Arial', fontSize: '13px'
         }}>
-          Select a driver and circuit, then click Analyse Strategy (uses local f1db.db via backend).
+          Select a driver and circuit, then click Analyse Strategy
         </div>
       )}
     </div>

@@ -13,8 +13,8 @@ export default function DriverImage({ driverId, driverNumber, size = 40 }) {
     setLoading(true)
 
     if (driverNumber) {
-      
-      fetch(`http://localhost:8085/api/telemetry/drivers?session_key=latest`)
+
+      fetch(` /api/telemetry/drivers?session_key=latest`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data) && data.length > 0) {

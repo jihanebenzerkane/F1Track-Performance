@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8085';
+const BASE = ' ';
 
 // Standings API Bridge
 // I used a Safety Wrapper here during development to handle cases where 
@@ -32,7 +32,7 @@ export async function safeGetConstructorStandings(season) {
 export const getStandings = (year, mode = 'real') =>
   fetch(`${BASE}/api/standings/${year}?mode=${mode}`).then(r => r.json());
 //race Standings
-export const getRaceResults = (raceId) => 
+export const getRaceResults = (raceId) =>
   fetch(`${BASE}/api/analysis/race/${raceId}/results`).then(r => r.json());
 
 export const getConstructorStandings = (year, mode = 'real') =>
@@ -42,7 +42,7 @@ export const getRacesBySeason = (year) =>
   fetch(`${BASE}/api/races/season/${year}`).then(r => r.json());
 
 export const getLeaderInfo = (year) =>
-  fetch(`${BASE}/api/leader/${year}`).then(r => r.json());
+  fetch(`${BASE}/api/standings/leader/${year}`).then(r => r.json());
 
 // Driver analysis
 export const getDriverPerformance = (driverId, year) =>

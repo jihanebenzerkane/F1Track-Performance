@@ -14,9 +14,9 @@ import {
   Cell,
 } from 'recharts';
 
-const BASE = 'http://localhost:8085';
+const BASE = ' ';
 const SEASONS = [];
-for (let y = 2026; y >= 2000; y--) SEASONS.push(y);
+for (let y = 2026; y >= 2023; y--) SEASONS.push(y);
 
 const CHART_STYLE = {
   background: 'rgba(255,255,255,0.02)',
@@ -201,9 +201,9 @@ export default function TelemetryPage() {
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px', minHeight: '100vh' }}>
-      
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', borderBottom: '1px solid var(--border)', paddingBottom: '32px' }}>
-        <div style={{ borderLeft: '4px solid var(--rb-red)', paddingLeft: '24px' }}>
+        <div style={{ paddingLeft: '24px' }}>
           <h1 style={{
             fontFamily: "var(--font)", fontSize: '32px', fontWeight: 900,
             textTransform: 'uppercase', letterSpacing: '2px', margin: 0, color: '#fff'
@@ -211,11 +211,11 @@ export default function TelemetryPage() {
             Telemetry <span style={{ color: 'var(--rb-red)' }}>Cockpit</span>
           </h1>
           <p style={{ color: 'var(--muted)', fontFamily: "var(--mono)", fontSize: '10px', letterSpacing: '1px', marginTop: '4px' }}>
-            LINEAR ANALYSIS STREAM v3.2
+            SIMULATED DATA STREAM
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '32px', background: 'rgba(255,255,255,0.02)', padding: '12px 24px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', gap: '32px', background: 'rgba(255,255,255,0.02)', padding: '12px 24px', borderRadius: '12px' }}>
           <div>
             <div style={{ fontSize: '12px', fontWeight: 900, color: '#fff', fontFamily: "var(--mono)" }}>{diagnostics.latency}ms</div>
             <div style={{ fontSize: '8px', color: 'var(--muted)', textTransform: 'uppercase' }}>Lat</div>
@@ -311,19 +311,19 @@ export default function TelemetryPage() {
         boxShadow: '0 30px 60px rgba(0,0,0,0.6)', marginBottom: '48px', position: 'relative', overflow: 'hidden'
       }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '20px 20px', pointerEvents: 'none' }} />
-        
+
         <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '40px', alignItems: 'center' }}>
-          
+
           {/* Throttle/Brake */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr', gap: '16px' }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ height: '80px', width: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', margin: '0 auto 12px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ height: '80px', width: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', margin: '0 auto 12px', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', bottom: 0, width: '100%', height: `${activeTelemetryPoint?.throttle || 0}%`, background: '#00d48a', transition: 'height 0.1s' }} />
               </div>
               <div style={{ fontSize: '10px', color: 'var(--muted)', fontFamily: "var(--mono)" }}>THR</div>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ height: '80px', width: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', margin: '0 auto 12px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ height: '80px', width: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', margin: '0 auto 12px', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', bottom: 0, width: '100%', height: `${activeTelemetryPoint?.brake || 0}%`, background: '#ff4b4b', transition: 'height 0.1s' }} />
               </div>
               <div style={{ fontSize: '10px', color: 'var(--muted)', fontFamily: "var(--mono)" }}>BRK</div>
@@ -337,12 +337,12 @@ export default function TelemetryPage() {
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
               background: 'radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%)'
             }}>
-              <div style={{ fontSize: '42px', fontWeight: 900, color: '#fff', fontFamily: "var(--mono)", lineHeight: 1 }}>
+              <div style={{ fontSize: '42px', fontWeight: 900, color: '#fff', fontFamily: "var(--mono)", lineHeight: 1.2 }}>
                 {activeTelemetryPoint?.speed || '0'}
               </div>
               <div style={{ fontSize: '10px', color: 'var(--rb-red)', fontWeight: 900, letterSpacing: '2px' }}>KM/H</div>
             </div>
-            <div style={{ 
+            <div style={{
               marginTop: '16px', fontSize: '24px', fontWeight: 900, color: '#fff', fontFamily: "var(--mono)",
               background: 'rgba(255,255,255,0.05)', padding: '4px 20px', borderRadius: '8px', display: 'inline-block'
             }}>
@@ -353,7 +353,7 @@ export default function TelemetryPage() {
           {/* RPM & DRS */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--muted)', marginBottom: '8px', fontFamily: "var(--mono)" }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--muted)', marginBottom: '8px', fontFamily: "var(--mono)" }}>
                 <span>RPM</span>
                 <span style={{ color: '#fff' }}>{(activeTelemetryPoint?.rpm || 0).toLocaleString()}</span>
               </div>
@@ -366,8 +366,8 @@ export default function TelemetryPage() {
                 }} />
               </div>
             </div>
-            <div style={{ 
-              background: activeTelemetryPoint?.drs === 1 ? '#00d48a' : 'rgba(255,255,255,0.03)', 
+            <div style={{
+              background: activeTelemetryPoint?.drs === 1 ? '#00d48a' : 'rgba(255,255,255,0.03)',
               color: activeTelemetryPoint?.drs === 1 ? '#000' : 'rgba(255,255,255,0.2)',
               fontSize: '10px', fontWeight: 900, textAlign: 'center', padding: '8px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.05)'
             }}>
@@ -406,8 +406,8 @@ export default function TelemetryPage() {
                   <AreaChart data={lapData} syncId="f1_telemetry" onMouseMove={e => e.activeTooltipIndex !== undefined && setHoverIndex(e.activeTooltipIndex)}>
                     <defs>
                       <linearGradient id="lapGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--rb-red)" stopOpacity={0.4}/>
-                        <stop offset="95%" stopColor="var(--rb-red)" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="var(--rb-red)" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="var(--rb-red)" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -452,13 +452,13 @@ function TelemetryChart({ data, dataKey, label, color, unit, syncId, onHover, se
         <AreaChart data={data} syncId={syncId} onMouseMove={e => e.activeTooltipIndex !== undefined && onHover(e.activeTooltipIndex)} margin={{ left: -30 }}>
           <defs>
             <linearGradient id={`grad_${dataKey}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={color} stopOpacity={0.2}/>
-              <stop offset="95%" stopColor={color} stopOpacity={0}/>
+              <stop offset="5%" stopColor={color} stopOpacity={0.2} />
+              <stop offset="95%" stopColor={color} stopOpacity={0} />
             </linearGradient>
             {secDataKey && (
-               <linearGradient id={`grad_${secDataKey}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={secColor} stopOpacity={0.2}/>
-                <stop offset="95%" stopColor={secColor} stopOpacity={0}/>
+              <linearGradient id={`grad_${secDataKey}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={secColor} stopOpacity={0.2} />
+                <stop offset="95%" stopColor={secColor} stopOpacity={0} />
               </linearGradient>
             )}
           </defs>

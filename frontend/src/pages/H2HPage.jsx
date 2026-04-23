@@ -7,7 +7,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell
 } from 'recharts'
 
-const BASE = 'http://localhost:8085'
+const BASE = ' '
 const SEASONS = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009]
 
 function formatName(id) {
@@ -25,11 +25,11 @@ export default function H2HPage() {
 
   useEffect(() => {
     safeGetStandings(season)
-      .then(res => { 
-        setDrivers(res); 
-        setDriver1(''); 
-        setDriver2(''); 
-        setData(null) 
+      .then(res => {
+        setDrivers(res);
+        setDriver1('');
+        setDriver2('');
+        setData(null)
       })
   }, [season])
 
@@ -62,7 +62,7 @@ export default function H2HPage() {
           <p style={{
             color: '#8591a3',
             fontSize: '14px',
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "'formula1', 'syne', monospace",
             letterSpacing: '1px'
           }}>Compare performance metrics between any two drivers</p>
         </div>
@@ -128,7 +128,6 @@ export default function H2HPage() {
                 <div style={{
                   background: '#0a0a0a',
                   backdropFilter: 'blur(24px)',
-                  border: `1px solid rgba(212, 175, 55, 0.4)`,
                   borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px',
                   opacity: 0, transform: 'translateX(-20px)', animation: 'fadeUp 0.5s ease forwards'
                 }}>
@@ -136,12 +135,12 @@ export default function H2HPage() {
                   <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '20px', fontWeight: 900, textAlign: 'center', textTransform: 'uppercase', color: '#fff' }}>{d1Info.name}</div>
                   <div style={{ fontFamily: "'Formula1', sans-serif", color: getTeamColor(d1Info.team), fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>{d1Info.team}</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', width: '100%', marginTop: '12px' }}>
-                    <div style={{ textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#E4002B', fontFamily: "'JetBrains Mono', monospace" }}>{data.driver1Wins}</div>
+                    <div style={{ textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '10px', padding: '16px' }}>
+                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#E4002B', fontFamily: "Syne" }}>{data.driver1Wins}</div>
                       <div style={{ fontSize: '10px', color: '#8591a3', textTransform: 'uppercase', letterSpacing: '1px' }}>H2H Wins</div>
                     </div>
-                    <div style={{ textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#fff', fontFamily: "'JetBrains Mono', monospace" }}>{data.driver1TotalPoints}</div>
+                    <div style={{ textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '10px', padding: '16px' }}>
+                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#fff', fontFamily: "Syne" }}>{data.driver1TotalPoints}</div>
                       <div style={{ fontSize: '10px', color: '#8591a3', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Pts</div>
                     </div>
                   </div>
@@ -151,7 +150,7 @@ export default function H2HPage() {
               {/* Central VS */}
               <div style={{ textAlign: 'center', opacity: 0, animation: 'fadeUp 0.5s ease forwards', animationDelay: '0.2s' }}>
                 <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '48px', fontWeight: 900, color: '#E4002B', textShadow: '0 0 30px rgba(228, 0, 43, 0.3)' }}>VS</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#8591a3', marginTop: '8px', textTransform: 'uppercase', letterSpacing: '2px' }}>{data.racesCompared} RACES</div>
+                <div style={{ fontFamily: "Syne", fontSize: '11px', color: '#8591a3', marginTop: '8px', textTransform: 'uppercase', letterSpacing: '2px' }}>{data.racesCompared} RACES</div>
               </div>
 
               {/* Driver 2 Card */}
@@ -159,7 +158,6 @@ export default function H2HPage() {
                 <div style={{
                   background: '#0a0a0a',
                   backdropFilter: 'blur(24px)',
-                  border: `1px solid rgba(255, 255, 255, 0.1)`,
                   borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px',
                   opacity: 0, transform: 'translateX(20px)', animation: 'fadeUp 0.5s ease forwards'
                 }}>
@@ -167,12 +165,12 @@ export default function H2HPage() {
                   <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '20px', fontWeight: 900, textAlign: 'center', textTransform: 'uppercase', color: '#fff' }}>{d2Info.name}</div>
                   <div style={{ fontFamily: "'Formula1', sans-serif", color: getTeamColor(d2Info.team), fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>{d2Info.team}</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', width: '100%', marginTop: '12px' }}>
-                    <div style={{ textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#E4002B', fontFamily: "'JetBrains Mono', monospace" }}>{data.driver2Wins}</div>
+                    <div style={{ textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '10px', padding: '16px' }}>
+                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#E4002B', fontFamily: "Syne" }}>{data.driver2Wins}</div>
                       <div style={{ fontSize: '10px', color: '#8591a3', textTransform: 'uppercase', letterSpacing: '1px' }}>H2H Wins</div>
                     </div>
-                    <div style={{ textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '10px', padding: '16px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#fff', fontFamily: "'JetBrains Mono', monospace" }}>{data.driver2TotalPoints}</div>
+                    <div style={{ textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '10px', padding: '16px' }}>
+                      <div style={{ fontSize: '28px', fontWeight: 900, color: '#fff', fontFamily: "Syne" }}>{data.driver2TotalPoints}</div>
                       <div style={{ fontSize: '10px', color: '#8591a3', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Pts</div>
                     </div>
                   </div>
@@ -196,10 +194,9 @@ export default function H2HPage() {
                 return (
                   <div style={{
                     background: '#0d0d14',
-                    border: '1px solid rgba(255,255,255,0.15)',
                     borderRadius: '10px',
                     padding: '12px 16px',
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: "Syne",
                     fontSize: '12px',
                     minWidth: '180px',
                   }}>
@@ -218,7 +215,6 @@ export default function H2HPage() {
                 <div style={{
                   background: '#0a0a0a',
                   backdropFilter: 'blur(24px)',
-                  border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '16px',
                   padding: '24px',
                   marginBottom: '24px',
@@ -231,7 +227,7 @@ export default function H2HPage() {
                       <div style={{ fontFamily: "'Formula1', sans-serif", fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '2px', color: '#fff' }}>
                         Points Scored — Race by Race
                       </div>
-                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#8591a3', marginTop: '4px' }}>
+                      <div style={{ fontFamily: "Syne", fontSize: '11px', color: '#8591a3', marginTop: '4px' }}>
                         {data.racesCompared} races compared · {season} season
                       </div>
                     </div>
@@ -251,7 +247,7 @@ export default function H2HPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
                       <XAxis
                         dataKey="race"
-                        tick={{ fill: '#8591a3', fontFamily: "'JetBrains Mono', monospace", fontSize: 9 }}
+                        tick={{ fill: '#8591a3', fontFamily: "Syne", fontSize: 9 }}
                         axisLine={false}
                         tickLine={false}
                         interval={0}
@@ -260,7 +256,7 @@ export default function H2HPage() {
                         height={48}
                       />
                       <YAxis
-                        tick={{ fill: '#8591a3', fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}
+                        tick={{ fill: '#8591a3', fontFamily: "Syne", fontSize: 10 }}
                         axisLine={false}
                         tickLine={false}
                         tickFormatter={v => `${v}pts`}
@@ -316,10 +312,10 @@ export default function H2HPage() {
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     <div style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>{race.race}</div>
-                    <div style={{ textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', color: '#8591a3' }}>P{race.driver1?.grid || '—'}</div>
-                    <div style={{ textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: '14px', color: d1Won ? '#E4002B' : '#f4f5f8' }}>P{race.driver1?.finish || '—'}</div>
-                    <div style={{ textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: '14px', color: d2Won ? '#fff' : '#f4f5f8' }}>P{race.driver2?.finish || '—'}</div>
-                    <div style={{ textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', color: '#8591a3' }}>P{race.driver2?.grid || '—'}</div>
+                    <div style={{ textAlign: 'center', fontFamily: "Syne", fontSize: '13px', color: '#8591a3' }}>P{race.driver1?.grid || '—'}</div>
+                    <div style={{ textAlign: 'center', fontFamily: "Syne", fontWeight: 700, fontSize: '14px', color: d1Won ? '#E4002B' : '#f4f5f8' }}>P{race.driver1?.finish || '—'}</div>
+                    <div style={{ textAlign: 'center', fontFamily: "Syne", fontWeight: 700, fontSize: '14px', color: d2Won ? '#fff' : '#f4f5f8' }}>P{race.driver2?.finish || '—'}</div>
+                    <div style={{ textAlign: 'center', fontFamily: "Syne", fontSize: '13px', color: '#8591a3' }}>P{race.driver2?.grid || '—'}</div>
                     <div style={{ textAlign: 'right', fontSize: '12px', fontWeight: 900, color: d1Won ? '#E4002B' : d2Won ? '#fff' : '#8591a3', textTransform: 'uppercase', letterSpacing: '1px' }}>
                       {d1Won ? formatName(driver1) : d2Won ? formatName(driver2) : 'Tied'}
                     </div>

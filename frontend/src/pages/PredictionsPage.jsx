@@ -37,6 +37,7 @@ export default function PredictionsPage() {
 
   const runSimulationLogs = () => {
     const messages = [
+      "Monte Carlo Simulation of 2026",
       "Loading historical race results...",
       "Calculating driver win rates per circuit...",
       "Weighting recent championship standings...",
@@ -94,18 +95,18 @@ export default function PredictionsPage() {
       `}</style>
 
       {/* Page Header */}
-      <div style={{ marginBottom: '32px', borderLeft: '4px solid #E4002B', paddingLeft: '20px' }}>
+      <div style={{ marginBottom: '32px',  paddingLeft: '20px' }}>
         <h1 style={{
           fontFamily: "'Formula1', sans-serif", fontSize: '28px', fontWeight: 900,
           textTransform: 'uppercase', letterSpacing: '2px', margin: 0, color: '#fff'
         }}>
-          Race <span style={{ color: '#E4002B' }}>Predictions</span>
+          {season} Race Predictions
         </h1>
         <p style={{
-          color: '#8591a3', fontFamily: "'Inter', sans-serif",
-          fontSize: '11px', marginTop: '6px', lineHeight: 1.7, maxWidth: '600px'
+          color: '#8591a3', fontFamily: "'Arial'",
+          fontSize: '15px', marginTop: '5px', lineHeight: 1.7, maxWidth: '600px'
         }}>
-          Monte Carlo simulation models a spectrum of potential race outcomes across 50,000 iterations 
+          Monte Carlo simulation models a spectrum of potential race outcomes across 50,000 iterations
           giving a probabilistic view of what might happen, how likely it is, and the range of realistic scenarios.
         </p>
       </div>
@@ -126,7 +127,7 @@ export default function PredictionsPage() {
               fontFamily: "'Formula1', sans-serif", fontSize: '10px',
               color: '#8591a3', textTransform: 'uppercase', letterSpacing: '2px'
             }}>
-              Upcoming Races — {season}
+              Upcoming Races for {season}
             </div>
             <div style={{
               display: 'grid',
@@ -144,7 +145,7 @@ export default function PredictionsPage() {
                     style={{
                       background: active ? 'rgba(228,0,43,0.08)' : '#0d0d0d',
                       padding: '16px', cursor: 'pointer',
-                      borderLeft: active ? '3px solid #E4002B' : '3px solid transparent',
+                      borderLeft: '3px solid transparent',
                       transition: 'all 0.15s'
                     }}
                   >
@@ -159,7 +160,7 @@ export default function PredictionsPage() {
                       {race.grandPrix}
                     </div>
                     <div style={{
-                      fontFamily: "'Space Mono', monospace", fontSize: '9px',
+                      fontFamily: "'Arial', sans-serif", fontSize: '12px',
                       color: active ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.2)'
                     }}>
                       {race.raceDate
@@ -179,7 +180,7 @@ export default function PredictionsPage() {
               borderRadius: '12px', padding: '40px', textAlign: 'center'
             }}>
               <div style={{
-                fontFamily: "'Space Mono', monospace", fontSize: '12px',
+                fontFamily: "'Arial', sans-serif", fontSize: '12px',
                 color: '#8591a3', marginBottom: '24px'
               }}>
                 {selectedRace ? `Ready to simulate: ${selectedRace.grandPrix}` : 'Select a race above'}
@@ -190,8 +191,8 @@ export default function PredictionsPage() {
                 style={{
                   padding: '12px 36px', background: circuitId ? '#E4002B' : 'rgba(255,255,255,0.05)',
                   border: 'none', borderRadius: '8px', color: circuitId ? '#fff' : '#8591a3',
-                  fontFamily: "'Formula1', sans-serif", fontSize: '11px',
-                  fontWeight: 700, letterSpacing: '1px', cursor: circuitId ? 'pointer' : 'default',
+                  fontFamily: "'Arial'", fontSize: '12px',
+                  fontWeight: 500, letterSpacing: '1px', cursor: circuitId ? 'pointer' : 'default',
                   transition: 'all 0.2s'
                 }}
               >
@@ -217,7 +218,7 @@ export default function PredictionsPage() {
                   animation: 'spin 0.8s linear infinite', flexShrink: 0
                 }} />
                 <span style={{
-                  fontFamily: "'Space Mono', monospace", fontSize: '10px', color: '#8591a3'
+                  fontFamily: "'Arial', sans-serif", fontSize: '10px', color: '#8591a3'
                 }}>
                   Running simulation...
                 </span>
@@ -225,7 +226,7 @@ export default function PredictionsPage() {
               <div style={{ padding: '20px', minHeight: '180px' }}>
                 {logs.map((log, idx) => (
                   <div key={idx} style={{
-                    fontFamily: "'Space Mono', monospace", fontSize: '11px',
+                    fontFamily: "'Arial', sans-serif", fontSize: '11px',
                     color: idx === logs.length - 1 ? '#fff' : '#8591a3',
                     marginBottom: '8px',
                     animation: 'fadeIn 0.2s ease forwards'
@@ -244,17 +245,17 @@ export default function PredictionsPage() {
               {/* Re-run */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{
-                  fontFamily: "'Formula1', sans-serif", fontSize: '10px',
+                  fontFamily: "'Arial', sans-serif", fontSize: '10px',
                   color: '#8591a3', textTransform: 'uppercase', letterSpacing: '2px'
                 }}>
-                  Results — {selectedRace?.grandPrix}
+                  Results of {selectedRace?.grandPrix}
                 </span>
                 <button
                   onClick={() => { setLoaded(false); setPredictions([]); loadPredictions() }}
                   style={{
                     padding: '7px 16px', background: 'transparent',
                     border: '1px solid rgba(228,0,43,0.4)', borderRadius: '6px',
-                    color: '#E4002B', fontFamily: "'Space Mono', monospace",
+                    color: '#E4002B', fontFamily: "'Arial', sans-serif",
                     fontSize: '10px', cursor: 'pointer'
                   }}
                 >
@@ -271,7 +272,7 @@ export default function PredictionsPage() {
                     borderRadius: '12px', padding: '20px', textAlign: 'center'
                   }}>
                     <div style={{
-                      fontFamily: "'Space Mono', monospace", fontSize: '9px',
+                      fontFamily: "'Arial', sans-serif", fontSize: '12px',
                       color: '#8591a3', marginBottom: '10px', textTransform: 'uppercase'
                     }}>
                       P{i + 1}
@@ -283,7 +284,7 @@ export default function PredictionsPage() {
                       {formatDriverName(p.driver)}
                     </div>
                     <div style={{
-                      fontFamily: "'Space Mono', monospace", fontSize: '22px',
+                      fontFamily: "'Arial', sans-serif", fontSize: '22px',
                       fontWeight: 700, color: i === 0 ? '#E4002B' : '#fff'
                     }}>
                       {p.predictionScore}%
@@ -300,7 +301,7 @@ export default function PredictionsPage() {
                 <div style={{
                   display: 'grid', gridTemplateColumns: '40px 1fr 80px',
                   padding: '10px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
-                  fontFamily: "'Space Mono', monospace", fontSize: '9px',
+                  fontFamily: "'Arial', sans-serif", fontSize: '12px',
                   color: '#8591a3', textTransform: 'uppercase'
                 }}>
                   <span>Pos</span><span>Driver</span><span style={{ textAlign: 'right' }}>Score</span>
@@ -313,7 +314,7 @@ export default function PredictionsPage() {
                     alignItems: 'center'
                   }}>
                     <span style={{
-                      fontFamily: "'Space Mono', monospace", fontSize: '11px', color: '#8591a3'
+                      fontFamily: "'Arial', sans-serif", fontSize: '11px', color: '#8591a3'
                     }}>
                       {p.rank}
                     </span>
@@ -323,7 +324,7 @@ export default function PredictionsPage() {
                       {formatDriverName(p.driver)}
                     </span>
                     <span style={{
-                      fontFamily: "'Space Mono', monospace", fontSize: '12px',
+                      fontFamily: "'Arial', sans-serif", fontSize: '12px',
                       color: '#E4002B', textAlign: 'right'
                     }}>
                       {p.predictionScore}%
@@ -338,7 +339,7 @@ export default function PredictionsPage() {
             <div style={{
               background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: '12px', padding: '40px', textAlign: 'center',
-              fontFamily: "'Space Mono', monospace", fontSize: '12px', color: '#8591a3'
+              fontFamily: "'Arial', sans-serif", fontSize: '12px', color: '#8591a3'
             }}>
               No prediction data for this circuit.
             </div>
@@ -360,7 +361,7 @@ export default function PredictionsPage() {
             }}>
               How it works
             </div>
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ padding: '25px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {[
                 { label: 'Method', value: 'Monte Carlo Simulation' },
                 { label: 'Iterations', value: '50,000' },
@@ -368,13 +369,13 @@ export default function PredictionsPage() {
               ].map(item => (
                 <div key={item.label}>
                   <div style={{
-                    fontFamily: "'Space Mono', monospace", fontSize: '9px',
+                    fontFamily: "'Formula1', sans-serif", fontSize: '13px',
                     color: '#8591a3', textTransform: 'uppercase', marginBottom: '4px'
                   }}>
                     {item.label}
                   </div>
                   <div style={{
-                    fontFamily: "'Space Mono', monospace", fontSize: '12px', color: '#fff'
+                    fontFamily: "'Formula1', sans-serif", fontSize: '13px', color: '#fff'
                   }}>
                     {item.value}
                   </div>
@@ -406,13 +407,13 @@ export default function PredictionsPage() {
                 ].map(stat => (
                   <div key={stat.label} style={{ background: '#0d0d0d', padding: '16px' }}>
                     <div style={{
-                      fontFamily: "'Space Mono', monospace", fontSize: '18px',
+                      fontFamily: "'Arial', sans-serif", fontSize: '18px',
                       fontWeight: 700, color: '#fff', lineHeight: 1
                     }}>
                       {stat.value}
                     </div>
                     <div style={{
-                      fontFamily: "'Space Mono', monospace", fontSize: '9px',
+                      fontFamily: "'Arial', sans-serif", fontSize: '12px',
                       color: '#8591a3', marginTop: '6px', textTransform: 'uppercase'
                     }}>
                       {stat.label}
@@ -443,7 +444,7 @@ export default function PredictionsPage() {
                 {selectedRace.grandPrix}
               </div>
               <div style={{
-                fontFamily: "'Space Mono', monospace", fontSize: '11px', color: '#8591a3'
+                fontFamily: "'Arial', sans-serif", fontSize: '11px', color: '#8591a3'
               }}>
                 {selectedRace.raceDate
                   ? new Date(selectedRace.raceDate).toLocaleDateString('en-GB', {
