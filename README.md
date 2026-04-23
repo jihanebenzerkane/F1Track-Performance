@@ -53,8 +53,7 @@ and a Monte Carlo race prediction engine into a single web application.
 
 ## Architecture notes
 
-The prediction engine uses Monte Carlo simulation rather than ML —
-a deliberate choice to keep the math transparent and explainable.
+The prediction engine uses Monte Carlo simulation.
 50,000 iterations per prediction, weighted by historical win rates,
 driver standings, and circuit-specific performance history.
 
