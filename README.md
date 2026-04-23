@@ -2,10 +2,13 @@
 
 Full-stack Formula 1 data and predictions platform built around the 2026 season.
 
+**🔴 Live Demo: [https://f1track.duckdns.org](https://f1track.duckdns.org)**
+
 ![React](https://img.shields.io/badge/React-Vite-61DAFB?style=flat&logo=react)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2.5-6DB33F?style=flat&logo=springboot)
 ![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=flat&logo=sqlite)
 ![Three.js](https://img.shields.io/badge/3D-Three.js-black?style=flat&logo=threedotjs)
+![OCI](https://img.shields.io/badge/Deployed-Oracle_Cloud-F80000?style=flat&logo=oracle)
 
 ## What it does
 
@@ -25,6 +28,11 @@ and a Monte Carlo race prediction engine into a single web application.
 - SQLite — relational dataset with historical F1 data (1950–2026)
 - DAO pattern with complex SQL joins across race, driver, and circuit tables
 - Monte Carlo simulation engine for race predictions (50,000 iterations)
+
+**Infrastructure**
+- Deployed on Oracle Cloud Infrastructure (OCI) — VM.Standard.A1.Flex, Casablanca region
+- Dockerized frontend (Nginx) and backend (eclipse-temurin:21)
+- Nginx reverse proxy with SSL via Let's Encrypt
 
 **External APIs**
 - OpenF1 API — live session telemetry, lap data, driver rosters
@@ -54,6 +62,15 @@ The telemetry pipeline samples raw OpenF1 car data at 1/800 rate
 to keep render performance stable while preserving the signal shape
 across speed, RPM, throttle and brake channels.
 
+## Deployment
+
+Deployed on Oracle Cloud Infrastructure Always Free tier:
+- VM.Standard.A1.Flex (1 OCPU, 6GB RAM, Ubuntu 22.04, Casablanca region)
+- Frontend: React build served by Nginx in Docker
+- Backend: Spring Boot JAR running in Docker on eclipse-temurin:21
+- Reverse proxy routes `/api/*` to backend, all other routes to React SPA
+- SSL certificate via Let's Encrypt (auto-renewing)
+
 ## Run locally
 
 **Backend**
@@ -69,10 +86,6 @@ cd frontend
 npm install
 npm run dev
 ```
-
-## Recording
-
-![F1Track Homepage](screenshots/)
 
 ---
 
