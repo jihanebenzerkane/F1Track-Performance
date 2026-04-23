@@ -1,4 +1,4 @@
-# F1Track
+# 🏎️F1Track
 
 Full-stack Formula 1 data and predictions platform built around the 2026 season.
 
