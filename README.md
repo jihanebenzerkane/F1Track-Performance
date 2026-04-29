@@ -111,7 +111,13 @@ video demo : <br>
 
 ## License
 Copyright © 2025 Jihane Benzerkane  
-This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
+**All Rights Reserved**
+
+This project is proprietary software. You may view the source code for 
+educational/reference purposes only. No permission is granted to copy, 
+modify, distribute, or use this code in any other project or application.
+
+For licensing inquiries, contact: jihanebenzerkane@gmail.com
 
 ## Copyright Notice
 - Frontend components: Copyright 2025 Jihane Benzerkane
