@@ -109,6 +109,14 @@ video demo : <br>
 <img width="2999" height="1999" alt="image" src="https://github.com/user-attachments/assets/4499dfdf-7fae-4408-a888-1e3e095d2602" />
 
 
----
+## License
+Copyright © 2025 Jihane Benzerkane  
+This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
 
+## Copyright Notice
+- Frontend components: Copyright 2025 Jihane Benzerkane
+- Backend API & simulation engine: Copyright 2025 Jihane Benzerkane  
+- Historical F1 data (1950-2026): Compiled from public sources, used under fair use for educational purposes
+- OpenF1 API integration: Respects [OpenF1 terms](https://openf1.org)
+---
 Built by [Jihane Benzerkane](https://www.linkedin.com/in/jihanebenzerkane) with ❤️ and ☕
